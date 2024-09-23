@@ -1,7 +1,0 @@
-#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-STREAM-INF:BANDWIDTH=2096000
-http://mfe02.cliptv.az/dash/ATV_SDthm07005_re.ism/playlist.mpd
-#EXT-X-STREAM-INF:BANDWIDTH=796000
-http://mfe02.cliptv.az/dash/ATV_SDthm07005_re.ism/playlist.mpd
-
