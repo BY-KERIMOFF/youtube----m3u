@@ -1,8 +1,9 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3000000,CODECS="",RESOLUTION=1920x1080
-https://trkvz.daioncdn.net/a2tv/a2tv_1080p.m3u8?e=1727182843&st=IYxjrWCb56nr82YGH6vgjw&sid=6rmqqtrxsm08&app=59363a60-be96-4f73-9eff-355d0ff2c758&ce=3
+https://tivi240.ozelip.com:3063/hybrid/play.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1500000,CODECS="",RESOLUTION=1280x720
-https://trkvz.daioncdn.net/a2tv/a2tv_1080p.m3u8?e=1727182843&st=IYxjrWCb56nr82YGH6vgjw&sid=6rmqqtrxsm08&app=59363a60-be96-4f73-9eff-355d0ff2c758&ce=3
+https://tivi240.ozelip.com:3063/hybrid/play.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=90000,CODECS="",RESOLUTION=854x480
-https://trkvz.daioncdn.net/a2tv/a2tv_1080p.m3u8?e=1727182843&st=IYxjrWCb56nr82YGH6vgjw&sid=6rmqqtrxsm08&app=59363a60-be96-4f73-9eff-355d0ff2c758&ce=3
+
+https://tivi240.ozelip.com:3063/hybrid/play.m3u8
