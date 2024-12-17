@@ -1,6 +1,6 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1200000,CODECS="",RESOLUTION=1024x576
-http://ciner-live.ercdn.net/showmax/showmax_576p.m3u8?e=1734411603&st=g9TUQURZwG7jATjtha9L4A&tv=1
+http://ciner-live.ercdn.net/showmax/showmax_576p.m3u8?e=1734413665&st=FR3rlwdzlc7_g8vdB--IfQ&tv=1
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=600000,CODECS="",RESOLUTION=640x360
-http://ciner-live.ercdn.net/showmax/showmax_360p.m3u8?e=1734411603&st=g9TUQURZwG7jATjtha9L4A&tv=1
+http://ciner-live.ercdn.net/showmax/showmax_360p.m3u8?e=1734413665&st=FR3rlwdzlc7_g8vdB--IfQ&tv=1
