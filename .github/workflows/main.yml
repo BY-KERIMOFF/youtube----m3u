@@ -3,10 +3,10 @@ name: run main.py
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0/60 * * * *'
+    - cron: '0 * * * *'  # Runs every hour on the hour
   pull_request:
-      branches:
-        - main
+    branches:
+      - main
 
 jobs:
   build:
@@ -16,18 +16,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-            python-version: '3.x' 
+          python-version: '3.x'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          
-          pip3 install -r requirements.txt
-      - name: execute py script 
+          pip install -r requirements.txt
+      - name: Execute py script
         run: python main.py config.json
-      - name: commit and push files
+      - name: Commit and push files
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git commit -m "updated streams"
+          git commit -m "Updated streams"
           git push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
