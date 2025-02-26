@@ -1,34 +1,38 @@
 import streamlink
 import sys
-import os 
+import os
 import json
 
 def info_to_text(stream_info, url):
     text = '#EXT-X-STREAM-INF:'
     if stream_info.program_id:
-        text = text + 'PROGRAM-ID=' + str(stream_info.program_id) + ','
+        text += f'PROGRAM-ID={stream_info.program_id},'
     if stream_info.bandwidth:
-        text = text + 'BANDWIDTH=' + str(stream_info.bandwidth) + ','
+        text += f'BANDWIDTH={stream_info.bandwidth},'
     if stream_info.codecs:
-        text = text + 'CODECS="'
+        text += 'CODECS="'
         codecs = stream_info.codecs
-        for i in range(0, len(codecs)):
-            text = text + codecs[i]
+        for i in range(len(codecs)):
+            text += codecs[i]
             if len(codecs) - 1 != i:
-                text = text + ','
-        text = text + '",'
+                text += ','
+        text += '",'
     if stream_info.resolution.width:
-        text = text + 'RESOLUTION=' + str(stream_info.resolution.width) + 'x' + str(stream_info.resolution.height) 
+        text += f'RESOLUTION={stream_info.resolution.width}x{stream_info.resolution.height}' 
 
-    text = text + "\n" + url + "\n"
+    text += f"\n{url}\n"
     return text
 
 def main():
-    # Loading config file
-    f = open(sys.argv[1], "r")
-    config = json.load(f)
+    # Config faylını yükləyirik
+    try:
+        with open(sys.argv[1], "r") as f:
+            config = json.load(f)
+    except Exception as e:
+        print(f"Config faylını yükləmə zamanı səhv: {e}")
+        sys.exit(1)
 
-    # Getting output options and creating folders
+    # Çıxış seçimlərini əldə edirik və qovluqlar yaradırıq
     folder_name = config["output"]["folder"]
     best_folder_name = config["output"]["bestFolder"]
     master_folder_name = config["output"]["masterFolder"]
@@ -41,74 +45,79 @@ def main():
 
     channels = config["channels"]
     for channel in channels:
-        # Get streams and playlists
+        # Streamləri və playlistləri əldə edirik
         try:
             url = channel["url"]
             streams = streamlink.streams(url)
+            
+            if 'best' not in streams or not hasattr(streams['best'], 'multivariant') or not hasattr(streams['best'].multivariant, 'playlists'):
+                print(f"URL üçün keçərli playlistlər tapılmadı: {url}")
+                continue
+
             playlists = streams['best'].multivariant.playlists
 
-            # Text preparation
+            # Mətn hazırlığı
             previous_res_height = 0
             master_text = ''
             best_text = ''
 
-            # Check http/https options
+            # http/https seçimlərini yoxlayırıq
             http_flag = False
             if url.startswith("http://"):
-                plugin_name, plugin_type, given_url  = streamlink.session.Streamlink().resolve_url(url)
+                plugin_name, plugin_type, given_url = streamlink.session.Streamlink().resolve_url(url)
                 http_flag = True
 
             for playlist in playlists:
                 uri = playlist.uri
                 info = playlist.stream_info
-                # Sorting sub-playlist based on 
+                # Sub-playlistləri təsnif edirik
                 if info.video != "audio_only": 
                     sub_text = info_to_text(info, uri)
                     if info.resolution.height > previous_res_height:
-                        master_text = sub_text  + master_text
+                        master_text = sub_text + master_text
                         best_text = sub_text
                     else:
-                        master_text = master_text + sub_text
+                        master_text += sub_text
                     previous_res_height = info.resolution.height
             
-            # Necessary values for HLS
+            # HLS üçün zəruri dəyərlər
             if master_text:
                 if streams['best'].multivariant.version:
-                    master_text = '#EXT-X-VERSION:' + str(streams['best'].multivariant.version) + "\n" + master_text
-                    best_text = '#EXT-X-VERSION:' + str(streams['best'].multivariant.version) + "\n" + best_text
+                    master_text = f'#EXT-X-VERSION:{streams['best'].multivariant.version}\n' + master_text
+                    best_text = f'#EXT-X-VERSION:{streams['best'].multivariant.version}\n' + best_text
                 master_text = '#EXTM3U\n' + master_text
                 best_text = '#EXTM3U\n' + best_text
 
-            # HTTPS -> HTTP for cinergroup plugin
+            # cinergroup plugin üçün HTTPS -> HTTP
             if http_flag:
                 if plugin_name == "cinergroup":
                     master_text = master_text.replace("https://", "http://")
                     best_text = best_text.replace("https://", "http://")
 
-            # File operations
-            master_file_path = os.path.join(master_folder, channel["slug"] + ".m3u8")
-            best_file_path = os.path.join(best_folder, channel["slug"] + ".m3u8")
+            # Fayl əməliyyatları
+            master_file_path = os.path.join(master_folder, f"{channel['slug']}.m3u8")
+            best_file_path = os.path.join(best_folder, f"{channel['slug']}.m3u8")
 
             if master_text:
-                master_file = open(master_file_path, "w+")
-                master_file.write(master_text)
-                master_file.close()
+                with open(master_file_path, "w+") as master_file:
+                    master_file.write(master_text)
 
-                best_file = open(best_file_path, "w+")
-                best_file.write(best_text)
-                best_file.close()
+                with open(best_file_path, "w+") as best_file:
+                    best_file.write(best_text)
                 
             else:
                 if os.path.isfile(master_file_path):
                     os.remove(master_file_path)
+                if os.path.isfile(best_file_path):
                     os.remove(best_file_path)
         except Exception as e:
-            master_file_path = os.path.join(master_folder, channel["slug"] + ".m3u8")
-            best_file_path = os.path.join(best_folder, channel["slug"] + ".m3u8")
+            print(f"Kanal {channel['slug']} üçün səhv: {e}")
+            master_file_path = os.path.join(master_folder, f"{channel['slug']}.m3u8")
+            best_file_path = os.path.join(best_folder, f"{channel['slug']}.m3u8")
             if os.path.isfile(master_file_path):
                 os.remove(master_file_path)
             if os.path.isfile(best_file_path):
                 os.remove(best_file_path)
 
-if __name__=="__main__": 
-    main() 
+if __name__ == "__main__":
+    main()
