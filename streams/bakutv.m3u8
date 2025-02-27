@@ -1,4 +1,4 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1500000,CODECS="",RESOLUTION=1280x720
-https://www.youtube.com/ShowTV/live/mpd
+https://manifest.googlevideo.com/api/manifest/hls_variant/expire/1740639118/ei/Lre_Z9_BArSI6dsP9I-noAQ/ip/92.205.0.142/id/VXMR3YQ7W3s.174/source/yt_live_broadcast/requiressl/yes/xpc/EgVo2aDSNQ%3D%3D/hfr/1/playlist_duration/30/manifest_duration/30/maudio/1/bui/AUWDL3wcWyeN2Ml6lSE0UCfzFAVF2_2z6hCW4pEoJNFa5ICoUN3zl2kZ9mglvuw3ZkgYlhoQ4-hrlNeT/spc/RjZbSSCCEg9mA29_ct3zNNeN1ILsxwhjgV_4z14pvKB7U7ligKrPv9s9JF6aDIQwY59ixl4/vprv/1/go/1/rqh/5/pacing/0/nvgoi/1/ncsapi/1/keepalive/yes/fexp/51326932%2C51355912/dover/11/itag/0/playlist_type/DVR/sparams/expire%2Cei%2Cip%2Cid%2Csource%2Crequiressl%2Cxpc%2Chfr%2Cplaylist_duration%2Cmanifest_duration%2Cmaudio%2Cbui%2Cspc%2Cvprv%2Cgo%2Crqh%2Citag%2Cplaylist_type/sig/AJfQdSswRgIhAKGn5wkxyxhS2nUw87Z94WrJTk5vQfJQ7sx93fOeLRJNAiEAySEFfE9WqBJS7V4bMrf1Spx8UfCL7N5EXzx6U4Xmr5A%3D/file/index.m3u8
