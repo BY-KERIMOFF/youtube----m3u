@@ -1,10 +1,10 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:BANDWIDTH=2200000,CODECS="",RESOLUTION=1920x1080
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=7fcztpvlxh4v&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=7fdbcohz29bs&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXT-X-STREAM-INF:BANDWIDTH=1000000,CODECS="",RESOLUTION=1280x720
-https://tv8.daioncdn.net/tv8/tv8_720p.m3u8?&sid=7fcztpvlxh4v&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_720p.m3u8?&sid=7fdbcohz29bs&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXT-X-STREAM-INF:BANDWIDTH=800000,CODECS="",RESOLUTION=854x480
-https://tv8.daioncdn.net/tv8/tv8_480p.m3u8?&sid=7fcztpvlxh4v&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_480p.m3u8?&sid=7fdbcohz29bs&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXT-X-STREAM-INF:BANDWIDTH=550000,CODECS="",RESOLUTION=640x360
-https://tv8.daioncdn.net/tv8/tv8_360p.m3u8?&sid=7fcztpvlxh4v&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_360p.m3u8?&sid=7fdbcohz29bs&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
