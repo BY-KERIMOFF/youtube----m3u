@@ -2,12 +2,18 @@ import feedparser
 import time
 import subprocess
 import os
-import argparse
+import yaml
 
-CHANNEL_ID = "UCOqe-z52nnpVSAe8Ds0fxaA"
-CHECK_INTERVAL = 300
-LAST_VIDEO_FILE = "last_video.txt"
-DOWNLOAD_FOLDER = "downloads"
+# YAML faylından konfiqurasiyanı oxuyuruq
+with open("yt-downloader.yml", "r") as f:
+    config = yaml.safe_load(f)
+
+CHANNEL_ID = config["settings"]["channel_id"]
+CHECK_INTERVAL = config["settings"]["check_interval_seconds"]
+LAST_VIDEO_FILE = config["settings"]["last_video_file"]
+DOWNLOAD_FOLDER = config["settings"]["download_folder"]
+OUTPUT_TEMPLATE = config["settings"]["output_template"]
+MODE = config["settings"].get("mode", "auto").lower()
 
 def get_latest_video_url(channel_id):
     feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
@@ -31,11 +37,11 @@ def download_video(video_url):
     print(f"🎥 Yüklənir: {video_url}")
     subprocess.run([
         "yt-dlp",
-        "-o", os.path.join(DOWNLOAD_FOLDER, "%(upload_date)s_%(title)s.%(ext)s"),
+        "-o", os.path.join(DOWNLOAD_FOLDER, OUTPUT_TEMPLATE),
         video_url
     ])
 
-def run_once():
+def check_and_download():
     latest = get_latest_video_url(CHANNEL_ID)
     if latest:
         last_saved = read_last_video()
@@ -48,18 +54,14 @@ def run_once():
     else:
         print("⚠️ Heç bir video tapılmadı.")
 
-def run_loop():
-    while True:
-        print("⏱️  YouTube yoxlanılır...")
-        run_once()
-        time.sleep(CHECK_INTERVAL)
+def main():
+    if MODE == "manual":
+        check_and_download()
+    else:
+        while True:
+            print("⏱️ YouTube yoxlanılır...")
+            check_and_download()
+            time.sleep(CHECK_INTERVAL)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="YouTube video downloader")
-    parser.add_argument("--manual", action="store_true", help="Əl ilə bir dəfəlik video yoxla və yüklə")
-    args = parser.parse_args()
-
-    if args.manual:
-        run_once()
-    else:
-        run_loop()
+    main()
