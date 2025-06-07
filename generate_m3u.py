@@ -2,6 +2,8 @@ import os
 import subprocess
 
 CHANNELS = {
+    "Kurtlar Vadisi": "https://www.youtube.com/@KurtlarVadisiOfficial",
+    "Kurtlar Vadisi Pusu": "https://www.youtube.com/channel/UCz1UfNp9VFp9R1HEFn5PY5A",
     "SHOW MAX": "https://www.youtube.com/watch?v=ouuCjEjyKVI",
     "YASAK ELMA": "https://www.youtube.com/watch?v=35Pf54Be3lo",
     "SEKSENLER": "https://www.youtube.com/watch?v=8-uHZ4CCb-E",
