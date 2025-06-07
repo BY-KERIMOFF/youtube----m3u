@@ -5,16 +5,28 @@ CHANNELS = {
     "Adanali": "https://www.youtube.com/@AvrupaYakasi/live"
 }
 
-COOKIES_FILE = "cookies.txt"
 OUTPUT_DIR = "output"
+TOKEN_FILE = "token.txt"
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def get_stream_url(youtube_url):
+def get_token():
+    try:
+        with open(TOKEN_FILE, "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"[!] Xəta: '{TOKEN_FILE}' tapılmadı!")
+        return None
+
+def get_stream_url(youtube_url, token):
+    if not token:
+        print("[!] Token mövcud deyil!")
+        return None
     try:
         result = subprocess.run(
             [
                 "yt-dlp",
-                "--cookies", COOKIES_FILE,
+                "--add-header", f"Authorization: Bearer {token}",
                 "-g", youtube_url
             ],
             capture_output=True,
@@ -40,9 +52,10 @@ def save_m3u(channel_name, stream_url):
     print(f"[✔] Yazıldı: {filepath}")
 
 def main():
+    token = get_token()
     for name, url in CHANNELS.items():
         print(f"[+] Yoxlanır: {name}")
-        stream_url = get_stream_url(url)
+        stream_url = get_stream_url(url, token)
         if stream_url:
             save_m3u(name, stream_url)
         else:
