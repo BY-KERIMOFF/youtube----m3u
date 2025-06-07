@@ -1,26 +1,24 @@
-import os
 import json
-import subprocess
+import os
 
+# JSON faylını oxu
 with open("channels.json", "r", encoding="utf-8") as f:
     channels = json.load(f)
 
+# Nəticə fayllarının saxlanacağı qovluq
 output_dir = "m3u8"
 os.makedirs(output_dir, exist_ok=True)
 
-for channel in channels:
-    name = channel["name"]
-    url = channel["url"]
-    
-    try:
-        stream_url = subprocess.check_output(["yt-dlp", "-g", url], text=True).strip()
-        file_name = os.path.join(output_dir, f"{name.replace(' ', '_').lower()}.m3u8")
-        m3u8_content = f"""#EXTM3U
-#EXTINF:-1,{name}
-{stream_url}
-"""
-        with open(file_name, "w", encoding="utf-8") as out_file:
-            out_file.write(m3u8_content)
-        print(f"[+] {name} üçün yazıldı: {file_name}")
-    except subprocess.CalledProcessError:
-        print(f"[!] {name} üçün stream tapılmadı.")
+# Hər kanal üçün ayrıca m3u8 faylı yarat
+for ch in channels:
+    # Fayl adı üçün "name" dan istifadə, boşluqları _ ilə əvəzlə, kiçik hərflə
+    safe_name = ch["name"].lower().replace(" ", "_").replace("ç", "c").replace("ö", "o").replace("ş", "s").replace("ü", "u").replace("ğ", "g").replace("ı", "i").replace("ə", "e").replace(" ", "_")
+    filename = os.path.join(output_dir, f"{safe_name}.m3u8")
+
+    with open(filename, "w", encoding="utf-8") as f_out:
+        f_out.write("#EXTM3U\n")
+        f_out.write("#EXT-X-VERSION:3\n")
+        f_out.write("#EXT-X-STREAM-INF:BANDWIDTH=2096000\n")
+        f_out.write(f"{ch['url']}\n")
+
+print(f"{len(channels)} m3u8 faylı '{output_dir}' qovluğunda yaradıldı.")
