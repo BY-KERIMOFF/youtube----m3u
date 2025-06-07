@@ -1,4 +1,3 @@
 yt-dlp
-pip install yt-dlp
 python-slugify
 
