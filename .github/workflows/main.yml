@@ -39,13 +39,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 1. Remote-dan yeniləmələri rebase ilə al
+          # 1. Lokaldakı dəyişiklikləri stash et
+          git stash push --include-untracked -m "pre-pull"
+
+          # 2. Remote-dan yeniləmələri rebase ilə al
           git pull --rebase https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
 
-          # 2. Yeni yaradılmış playlist.m3u faylını stage et
+          # 3. Stash edilmiş dəyişiklikləri geri gətir
+          git stash pop || echo "No stash to pop"
+
+          # 4. Yeni yaradılmış playlist.m3u faylını stage et
           git add playlist.m3u
 
-          # 3. Dəyişiklik varsa commit & push et
+          # 5. Dəyişiklik varsa commit & push et
           if ! git diff --cached --quiet; then
             git commit -m "Avtomatik yenilənmiş playlist.m3u"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
