@@ -1,12 +1,17 @@
-# YouTube Live to M3U Generator
+# YouTube Live to M3U Playlist Generator
 
-YouTube canlı yayım linklərini `yt-dlp` və `cookies.txt` vasitəsilə `.m3u8` formatında çıxarıb `playlist.m3u` yaradır.
+YouTube canlı yayım linklərini `yt-dlp` və `cookies.txt` ilə `.m3u8` formatında çıxarıb `playlist.m3u` faylı yaradır.
 
-## İstifadə:
+---
 
-1. Brauzerinizdən `cookies.txt` faylını ixrac edin (YouTube-da giriş etdikdən sonra).
-2. `channels.json` faylında YouTube canlı yayım URL-lərini yazın.
-3. Skripti işə salın:
+## İstifadə qaydası:
+
+1. Chrome və ya digər brauzerdən YouTube hesabına daxil ol.
+2. [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/lmjcdhbnlojpmjmnodnlpdfkdjflkobe) uzantısı ilə cookies faylını ixrac et.
+3. `cookies.txt` faylını layihə qovluğuna yerləşdir.
+4. `channels.json` faylında YouTube canlı yayım linklərini əlavə et.
+5. Terminalda aşağıdakı əmri icra et:
 
 ```bash
+pip install -r requirements.txt
 python generate_m3u.py
