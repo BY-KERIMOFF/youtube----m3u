@@ -3,7 +3,7 @@ import yt_dlp
 channels = [
     ("SHOW MAX", "https://www.youtube.com/@showtv/live"),
     ("YASAK ELMA", "https://www.youtube.com/@YasakElma/live"),
-    # Buraya istədiyin qədər əlavə et...
+    # ... digər kanallar ...
 ]
 
 def fetch_stream_url(youtube_url):
