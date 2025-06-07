@@ -2,6 +2,9 @@ import requests
 import re
 import xml.etree.ElementTree as ET
 
+# Bu sənin kanalındır
+CUSTOM_URL = "@cennetmahallesishowtv"
+
 def get_channel_id(custom_url):
     url = f"https://www.youtube.com/{custom_url}/about"
     response = requests.get(url)
@@ -38,8 +41,7 @@ def save_m3u(title, link):
         f.write(f"{link}\n")
 
 if __name__ == "__main__":
-    custom_url = "@cennetmahallesishowtv"
-    channel_id = get_channel_id(custom_url)
+    channel_id = get_channel_id(CUSTOM_URL)
     if channel_id:
         result = get_latest_video_link(channel_id)
         if result:
