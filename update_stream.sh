@@ -1,13 +1,6 @@
 #!/bin/bash
 
-URL="https://www.youtube.com/watch?v=TnKHC3tgl3s"
-
-STREAM_URL=$(streamlink --stream-url "$URL" best 2>/dev/null)
-
-if [[ -z "$STREAM_URL" ]]; then
-    echo "🚫 Canlı yayımın m3u8 linki tapılmadı (streamlink)."
-    exit 1
-fi
+STREAM_URL="https://manifest.googlevideo.com/api/manifest/hls_variant/xyz123.m3u8?..."
 
 cat <<EOF > stream.m3u8
 #EXTM3U
@@ -15,4 +8,4 @@ cat <<EOF > stream.m3u8
 $STREAM_URL
 EOF
 
-echo "✅ m3u8 faylı yeniləndi (streamlink): $STREAM_URL"
+echo "✅ m3u8 faylı yeniləndi"
