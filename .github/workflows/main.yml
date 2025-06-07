@@ -1,34 +1,32 @@
 name: Generate M3U Playlist
 
 on:
-  workflow_dispatch:  # Manual start
+  workflow_dispatch:
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Kopyala repository
+      - name: Reponu yüklə
         uses: actions/checkout@v3
 
-      - name: Python quraşdır
+      - name: Python qur
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
-      - name: Tələbləri quraşdır
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Əlavə paketləri quraşdır
+        run: pip install -r requirements.txt
 
-      - name: Cookies faylını yüklə (repo-nun Secrets hissəsindən)
+      - name: Cookies faylı yarat
         run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
 
-      - name: M3U faylını generasiya et
+      - name: Playlist yarat
         run: python generate_m3u.py
 
-      - name: Nəticəni yüklə (playlist.m3u)
-        uses: actions/upload-artifact@v3
+      - name: Nəticəni saxla
+        uses: actions/upload-artifact@v4
         with:
           name: playlist
           path: playlist.m3u
