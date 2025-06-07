@@ -1,33 +1,27 @@
-name: YouTube Live Stream Checker
+name: YouTube Canlı Yoxlayıcı
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'  # Hər 15 dəqiqədə bir dəfə çalışacaq
-  workflow_dispatch:        # Əl ilə işə salmaq üçün
+    - cron: '*/10 * * * *'
 
 jobs:
-  check-live-stream:
+  check_live:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repo klonla
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Python quraşdır
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install beautifulsoup4
 
-      - name: Asılılıqları quraşdır
-        run: pip install requests
-
-      - name: Canlı yayımı yoxla və .m3u faylı yarat
+      - name: Check YouTube live and generate M3U
         run: python youtube_live_check.py
 
-      - name: Faylı commit et və push et
+      - name: Commit M3U if changed
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add latest.m3u || true
-          git commit -m "update latest.m3u (live)" || echo "No changes"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add latest.m3u
+          git diff --cached --quiet || git commit -m "🔄 Update latest.m3u"
           git push
