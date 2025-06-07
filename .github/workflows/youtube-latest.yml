@@ -2,7 +2,7 @@ name: Update Live Stream M3U8
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # hər 15 dəqiqə
+    - cron: '*/15 * * * *'  # hər 15 dəqiqə
   workflow_dispatch:
 
 jobs:
@@ -16,17 +16,17 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y python3-pip
-          pip3 install requests yt-dlp
+          pip3 install -U yt-dlp
 
       - name: Run update script
         run: |
           chmod +x update_stream.sh
           ./update_stream.sh
 
-      - name: Commit and push changes
+      - name: Commit changes
         run: |
           git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.email "github-actions@github-actions.github.com"
           git add stream.m3u8 || true
           git commit -m "🔄 Update stream.m3u8" || echo "No changes"
           git push
