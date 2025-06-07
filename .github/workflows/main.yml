@@ -3,14 +3,14 @@ name: Generate and Commit M3U Playlist
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'  # hər gün UTC 12:00
+    - cron: '0 12 * * *'  # Hər gün UTC 12:00-da işə düşəcək
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Python
@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create cookies.txt
+      - name: Create cookies.txt from secret
         run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
 
       - name: Generate playlist.m3u
@@ -39,11 +39,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add playlist.m3u
+
+          # Pull remote changes and rebase to avoid non-fast-forward
+          git pull --rebase https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
+
           if ! git diff --cached --quiet; then
-            git commit -m "Auto-update playlist.m3u"
+            git commit -m "Avtomatik yenilənmiş playlist.m3u"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
           else
-            echo "No changes → skipping push."
+            echo "Heç bir dəyişiklik yoxdur → push edilmədi."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
