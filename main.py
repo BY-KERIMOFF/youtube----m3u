@@ -16,7 +16,6 @@ def main():
     for ch in channels:
         name = ch.get("name", "No_Name").strip()
         url = ch.get("url", "").strip()
-        group = ch.get("group", "GENEL").strip().upper()
 
         if not url:
             continue
@@ -24,15 +23,13 @@ def main():
         filename = sanitize_filename(name) + ".m3u8"
         filepath = os.path.join(output_dir, filename)
 
-        # BANDWIDTH dəyərləri nümunə olaraq (istəyə görə dəyişə bilər)
-        bandwidths = [2096000, 796000]
-
         with open(filepath, "w", encoding="utf-8") as out:
             out.write("#EXTM3U\n")
             out.write("#EXT-X-VERSION:3\n")
-            for bw in bandwidths:
-                out.write(f"#EXT-X-STREAM-INF:BANDWIDTH={bw}\n")
-                out.write(f"{url}?bandwidth={int(bw/1000)}\n")
+            out.write("#EXT-X-STREAM-INF:BANDWIDTH=2096000\n")
+            out.write(f"{url}\n")
+            out.write("#EXT-X-STREAM-INF:BANDWIDTH=796000\n")
+            out.write(f"{url}\n")
 
         print(f"{filename} yaradıldı.")
 
