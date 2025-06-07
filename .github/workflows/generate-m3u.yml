@@ -2,8 +2,8 @@ name: Generate M3U from YouTube Live
 
 on:
   schedule:
-    - cron: "0 12 * * *"  # Hər gün saat 12:00 UTC-da işləyir
-  workflow_dispatch:      # Manual olaraq da işə salmaq olar
+    - cron: "0 12 * * *"   # Hər gün UTC ilə saat 12:00-da
+  workflow_dispatch:        # Manual olaraq işə salmaq üçün
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Repo klonla
         uses: actions/checkout@v3
 
-      - name: Python və asılılıqları qur
+      - name: Python qur
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -22,13 +22,16 @@ jobs:
         run: pip install yt-dlp
 
       - name: Scripti işə sal
-        run: python main.py
+        run: python main.py || true
 
-      - name: Yeni M3U faylını Git-ə əlavə et və push et
+      - name: Fayl varsa commit et
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add youtube_live.m3u
-          git commit -m "🔁 M3U yeniləndi: $(date -u '+%Y-%m-%d %H:%M:%S')"
-          git push
-        continue-on-error: true  # Əgər dəyişiklik yoxdursa, commit atmaz, amma workflow dayanmaz
+          if [ -f youtube_live.m3u ]; then
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+            git add youtube_live.m3u
+            git commit -m "🔁 M3U yeniləndi: $(date -u '+%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "⚠️ Fayl tapılmadı, commit olunmur."
+          fi
