@@ -1,23 +1,58 @@
-import json
+name: Run main.py
 
-def main():
-    input_file = "youtube_channels.json"
-    output_file = "channels.m3u"
+on:
+  schedule:
+    - cron: '0 */2 * * *' # Hər 2 saatda bir avtomatik işləyir
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Manual tetikleme imkanı
 
-    with open(input_file, "r", encoding="utf-8") as f:
-        channels = json.load(f)
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("#EXTM3U\n")
-        for ch in channels:
-            name = ch.get("name", "No Name").strip().upper()
-            url = ch.get("url", "").strip()
-            group = ch.get("group", "GENEL").strip().upper()
-            if url:
-                f.write(f'#EXTINF:-1 group-title="{group}",{name}\n')
-                f.write(f'{url}\n')
+    steps:
+      # Repo-nu yüklə
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    print(f"{output_file} faylı yaradıldı.")
+      # Python-u quraşdır
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-if __name__ == "__main__":
-    main()
+      # Requirements varsa onları yüklə
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Python skriptini işə sal
+      - name: Execute Python script
+        run: |
+          python main.py youtube_channels.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Əgər dəyişiklik olubsa, onları commit və push et
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          echo "Checking for changes..."
+          git status
+          
+          git add -A
+          
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            echo "Committing changes..."
+            git commit -m "Updated streams [skip ci]"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
