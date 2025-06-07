@@ -1,54 +1,10 @@
-{
-    "output": {
-        "folder": "streams",
-        "bestFolder": "best",
-        "masterFolder": ""
-    },
-    "channels": [
-        {
-            "name": "showmax",
-            "slug": "showmax",
-            "url": "https://www.youtube.com/@showtv/live
-        },
-        {
-            "name": "showmax",
-            "slug": "showmax",
-            "url": "https://www.showmax.com.tr/canliyayin"
-        },
-        {
-            "name": "showtv",
-            "slug": "showtv",
-            "url": "https://www.showtv.com.tr/canli-yayin"
-        },
-        {
-            "name": "cnnturk",
-            "slug": "cnnturk",
-            "url": "https://www.youtube.com/@cnnturk/live"
-        },
-        {
-            "name": "kanald",
-            "slug": "kanald",
-            "url": "https://www.kanald.com.tr/canli-yayin"
-        },
-        {
-            "name": "tv8",
-            "slug": "tv8",
-            "url": "https://www.tv8.com.tr/canli-yayin"
-        },
-        {
-            "name": "nowtv",
-            "slug": "nowtv",
-            "url": "https://www.nowtv.com.tr/canli-yayin"
-        },
-        {
-            "name": "eurostartv",
-            "slug": "eurostartv",
-            "url": "https://www.eurostartv.com.tr/canli-izle"
-        },
-        {
-            "name": "yaban",
-            "slug": "yaban",
-            "url": "https://www.yabantv.com/broadcast"
-        }
-    ]
-}
+[
+  {
+    "name": "SEKSENLER",
+    "url": "https://www.youtube.com/@seksenlertrt/live"
+  },
+  {
+    "name": "SÖZ DİZİ",
+    "url": "https://www.youtube.com/c/SözDizi/live"
+  }
+]
