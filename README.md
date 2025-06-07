@@ -1,20 +1,12 @@
-# 📺 YouTube Live to M3U Playlist Converter
+# YouTube Live to M3U Generator
 
-Bu layihə, `yt-dlp` vasitəsilə YouTube **canlı yayım linklərini** `.m3u8` formatında çıxarıb **media player-lərdə işləyən `.m3u` playlist** faylı yaradır.
+YouTube canlı yayım linklərini `yt-dlp` və `cookies.txt` vasitəsilə `.m3u8` formatında çıxarıb `playlist.m3u` yaradır.
 
----
+## İstifadə:
 
-## 📌 Məzmun
-
-- 🔹 `channels.json` – YouTube kanallarının və ya canlı yayım URL-lərinin siyahısı
-- 🔹 `generate_m3u.py` – JSON faylını oxuyur və `playlist.m3u` faylını yaradır
-- 🔹 `playlist.m3u` – Nəticədə yaranan HLS playlist faylı (m3u8 linklərlə)
-
----
-
-## 🔧 Quraşdırma
-
-### 1. `yt-dlp` Qur
+1. Brauzerinizdən `cookies.txt` faylını ixrac edin (YouTube-da giriş etdikdən sonra).
+2. `channels.json` faylında YouTube canlı yayım URL-lərini yazın.
+3. Skripti işə salın:
 
 ```bash
-pip install yt-dlp
+python generate_m3u.py
