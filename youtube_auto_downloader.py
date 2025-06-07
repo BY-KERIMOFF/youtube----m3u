@@ -2,17 +2,11 @@ import feedparser
 import time
 import subprocess
 import os
+import argparse
 
-# YouTube kanal ID – cennetmahallesishowtv üçün tapılmış ID
 CHANNEL_ID = "UCOqe-z52nnpVSAe8Ds0fxaA"
-
-# Videonu yoxlama intervalı (saniyə ilə): 5 dəqiqə
 CHECK_INTERVAL = 300
-
-# Əvvəlki video linki bu faylda saxlanacaq
 LAST_VIDEO_FILE = "last_video.txt"
-
-# Videolar bu qovluqda saxlanacaq
 DOWNLOAD_FOLDER = "downloads"
 
 def get_latest_video_url(channel_id):
@@ -41,21 +35,31 @@ def download_video(video_url):
         video_url
     ])
 
-def main():
+def run_once():
+    latest = get_latest_video_url(CHANNEL_ID)
+    if latest:
+        last_saved = read_last_video()
+        if latest != last_saved:
+            print("✔️ Yeni video tapıldı!")
+            write_last_video(latest)
+            download_video(latest)
+        else:
+            print("ℹ️ Video eynidir, yükləmə yoxdur.")
+    else:
+        print("⚠️ Heç bir video tapılmadı.")
+
+def run_loop():
     while True:
         print("⏱️  YouTube yoxlanılır...")
-        latest = get_latest_video_url(CHANNEL_ID)
-        if latest:
-            last_saved = read_last_video()
-            if latest != last_saved:
-                print("✔️ Yeni video tapıldı!")
-                write_last_video(latest)
-                download_video(latest)
-            else:
-                print("🔄 Hələ yenilik yoxdur.")
-        else:
-            print("⚠️ Kanaldan video alınmadı.")
+        run_once()
         time.sleep(CHECK_INTERVAL)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="YouTube video downloader")
+    parser.add_argument("--manual", action="store_true", help="Əl ilə bir dəfəlik video yoxla və yüklə")
+    args = parser.parse_args()
+
+    if args.manual:
+        run_once()
+    else:
+        run_loop()
