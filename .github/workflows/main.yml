@@ -1,7 +1,10 @@
-name: Generate M3U Playlist
+name: Generate and Commit M3U Playlist
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main  # əsas budağını qeyd et
 
 jobs:
   generate:
@@ -10,13 +13,15 @@ jobs:
     steps:
       - name: Reponu yüklə
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # git push üçün öz tokenimizi istifadə edəcəyik
 
       - name: Python qur
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Əlavə paketləri quraşdır
+      - name: Paketləri quraşdır
         run: pip install -r requirements.txt
 
       - name: Cookies faylı yarat
@@ -25,8 +30,16 @@ jobs:
       - name: Playlist yarat
         run: python generate_m3u.py
 
-      - name: Nəticəni saxla
-        uses: actions/upload-artifact@v4
-        with:
-          name: playlist
-          path: playlist.m3u
+      - name: Commit və push (əgər fayl dəyişibsə)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add playlist.m3u
+          if ! git diff --cached --quiet; then
+            git commit -m "Avtomatik yenilənmiş playlist.m3u"
+            git push origin main
+          else
+            echo "Heç bir dəyişiklik yoxdur, push lazım deyil."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
