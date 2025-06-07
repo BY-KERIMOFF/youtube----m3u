@@ -1,36 +1,40 @@
 import requests
+import sys
 
-def get_live_stream_url(custom_url):
-    url = f"https://www.youtube.com/{custom_url}/live"
+def get_live_stream_url(channel_handle):
+    # Invidious public instance (işlək mirror): yewtu.be
+    api_url = f"https://yewtu.be/channel/{channel_handle}/live"
+
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" 
+        "User-Agent": "Mozilla/5.0"
     }
-    response = requests.get(url, headers=headers, allow_redirects=False)
-    
-    # Əgər redirect varsa və "Location" headerində watch?v=... varsa
-    if response.status_code in (301, 302) and "Location" in response.headers:
-        final_url = response.headers["Location"]
-        if "watch?v=" in final_url:
-            print("🔴 Canlı yayım AKTİVDİR! Redirected URL tapıldı.")
+
+    try:
+        response = requests.get(api_url, headers=headers, allow_redirects=True)
+        final_url = response.url
+
+        # Əgər linkdə "watch?v=" varsa və "live" URL deyil – deməli canlı yayımdır
+        if "watch?v=" in final_url and "/live" not in final_url:
+            print("🔴 Canlı yayım AŞKARLANDI!")
             return final_url
-    
-    # Əlavə yoxlama: .url əli istənilən halda
-    final_url = response.url
-    if "watch?v=" in final_url and "live" not in final_url:
-        print("🔴 Canlı yayım AKTİVDİR! Redirect sonrası URL.")
-        return final_url
-    
-    print("🔕 Canlı yayım yoxdur.")
-    return None
+        else:
+            print("🔕 Canlı yayım YOXDUR.")
+            return None
+
+    except Exception as e:
+        print(f"❌ Xəta baş verdi: {e}")
+        return None
 
 def save_m3u(link):
     with open("latest.m3u", "w", encoding="utf-8") as f:
         f.write("#EXTM3U\n")
         f.write("#EXTINF:-1,CANLI YAYIN\n")
         f.write(f"{link}\n")
+        print("✅ latest.m3u uğurla yazıldı.")
 
 if __name__ == "__main__":
-    custom_url = "@NBCNewsNOW"  # Canlı çıxışlı kanal
-    live_link = get_live_stream_url(custom_url)
-    if live_link:
-        save_m3u(live_link)
+    # Buraya istədiyin kanalın handle-ını yaz: məsələn @NBCNewsNOW, @Adanali, s.
+    channel_handle = "@NBCNewsNOW"  # dəyişmək olar
+    live_url = get_live_stream_url(channel_handle)
+    if live_url:
+        save_m3u(live_url)
