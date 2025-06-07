@@ -1,7 +1,7 @@
 name: YouTube Auto Downloader
 
 description: >
-  Bu sistem YouTube kanalından son videonu avtomatik və ya əl ilə tapıb yükləyir.
+  YouTube kanalından son videonu avtomatik və ya əl ilə tapıb yükləyir.
 
 version: "1.1"
 
@@ -16,14 +16,4 @@ settings:
   last_video_file: "last_video.txt"
   download_folder: "downloads"
   output_template: "%(upload_date)s_%(title)s.%(ext)s"
-
-commands:
-  auto:
-    description: >
-      Kanaldakı son videonu avtomatik izləyir və yeni video çıxan kimi yükləyir.
-    run: python youtube_downloader.py
-
-  manual:
-    description: >
-      Bir dəfəlik olaraq son videonu tapır və yalnız yenidirsə yükləyir.
-    run: python youtube_downloader.py --manual
+  mode: "auto"   # "auto" və ya "manual"
