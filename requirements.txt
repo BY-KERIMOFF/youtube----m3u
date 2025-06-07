@@ -3,6 +3,8 @@ yt-dlp
 python-slugify
 beautifulsoup4
 pip install beautifulsoup4 requests
+pip install -U yt-dlp
+
 
 
 
