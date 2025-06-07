@@ -1,3 +1,6 @@
 #EXTM3U
-#EXTINF:-1 group-title="DIZILER",AVRUPA YAKASI
-https://www.youtube.com/@AvrupaYakasi/live
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=2096000
+https://www.youtube.com/@AvrupaYakasi/live?bandwidth=2096
+#EXT-X-STREAM-INF:BANDWIDTH=796000
+https://www.youtube.com/@AvrupaYakasi/live?bandwidth=796

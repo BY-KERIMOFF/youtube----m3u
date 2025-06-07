@@ -1,3 +1,6 @@
 #EXTM3U
-#EXTINF:-1 group-title="DIZILER",KIRALIK ASK
-https://www.youtube.com/@KiralikAsk/live
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=2096000
+https://www.youtube.com/@KiralikAsk/live?bandwidth=2096
+#EXT-X-STREAM-INF:BANDWIDTH=796000
+https://www.youtube.com/@KiralikAsk/live?bandwidth=796
