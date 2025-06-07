@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main  # əsas budağını qeyd et
+      - main  # Əsas budaq adını lazım olsa dəyiş
 
 jobs:
   generate:
@@ -13,8 +13,7 @@ jobs:
     steps:
       - name: Reponu yüklə
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false  # git push üçün öz tokenimizi istifadə edəcəyik
+        # persist-credentials silindi, default true olur
 
       - name: Python qur
         uses: actions/setup-python@v4
@@ -24,7 +23,7 @@ jobs:
       - name: Paketləri quraşdır
         run: pip install -r requirements.txt
 
-      - name: Cookies faylı yarat
+      - name: Cookies faylını yarat
         run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
 
       - name: Playlist yarat
@@ -37,7 +36,7 @@ jobs:
           git add playlist.m3u
           if ! git diff --cached --quiet; then
             git commit -m "Avtomatik yenilənmiş playlist.m3u"
-            git push origin main
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
           else
             echo "Heç bir dəyişiklik yoxdur, push lazım deyil."
           fi
