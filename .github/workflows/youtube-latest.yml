@@ -1,27 +1,31 @@
-name: YouTube Canlı Yoxlayıcı
+import requests
+from bs4 import BeautifulSoup
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '*/10 * * * *'
+# Kanalın URL-i (@Adanali kanalına uyğunlaşdır)
+CHANNEL_HANDLE = "Adanali"
+URL = f"https://www.youtube.com/@{CHANNEL_HANDLE}/streams"
 
-jobs:
-  check_live:
-    runs-on: ubuntu-latest
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
 
-    steps:
-      - uses: actions/checkout@v3
+def check_live_streams():
+    response = requests.get(URL, headers=headers)
+    
+    if response.status_code != 200:
+        print("❌ Sayta daxil olmaq mümkün olmadı.")
+        return
 
-      - name: Install dependencies
-        run: pip install beautifulsoup4
+    soup = BeautifulSoup(response.text, "html.parser")
 
-      - name: Check YouTube live and generate M3U
-        run: python youtube_live_check.py
+    if "Canlı yayım" in response.text or "Live" in response.text:
+        print("✅ Canlı yayım TAPILDI!")
+        # Daha dəqiq tapmaq üçün 'video' linklərini axtar
+        for a in soup.find_all("a", href=True):
+            if "/watch?v=" in a['href']:
+                print("🔗 Link:", "https://www.youtube.com" + a['href'])
+    else:
+        print("🚫 Hazırda canlı yayım yoxdur.")
 
-      - name: Commit M3U if changed
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add latest.m3u
-          git diff --cached --quiet || git commit -m "🔄 Update latest.m3u"
-          git push
+if __name__ == "__main__":
+    check_live_streams()
