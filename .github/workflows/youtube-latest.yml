@@ -1,31 +1,32 @@
-import requests
-from bs4 import BeautifulSoup
+name: Update M3U8
 
-# Kanalın URL-i (@Adanali kanalına uyğunlaşdır)
-CHANNEL_HANDLE = "Adanali"
-URL = f"https://www.youtube.com/@{CHANNEL_HANDLE}/streams"
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # hər 15 dəqiqə işə düşəcək
+  workflow_dispatch:        # əl ilə də işə salmaq olur
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo klonlanır
+        uses: actions/checkout@v3
 
-def check_live_streams():
-    response = requests.get(URL, headers=headers)
-    
-    if response.status_code != 200:
-        print("❌ Sayta daxil olmaq mümkün olmadı.")
-        return
+      - name: yt-dlp quraşdırılır
+        run: |
+          sudo apt update
+          sudo apt install -y ffmpeg python3-pip
+          pip3 install yt-dlp
 
-    soup = BeautifulSoup(response.text, "html.parser")
+      - name: Skript işlədilir
+        run: |
+          chmod +x update_stream.sh
+          ./update_stream.sh
 
-    if "Canlı yayım" in response.text or "Live" in response.text:
-        print("✅ Canlı yayım TAPILDI!")
-        # Daha dəqiq tapmaq üçün 'video' linklərini axtar
-        for a in soup.find_all("a", href=True):
-            if "/watch?v=" in a['href']:
-                print("🔗 Link:", "https://www.youtube.com" + a['href'])
-    else:
-        print("🚫 Hazırda canlı yayım yoxdur.")
-
-if __name__ == "__main__":
-    check_live_streams()
+      - name: Git dəyişikliklərini push et
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add stream.m3u8 || true
+          git commit -m "🔁 m3u8 yeniləndi" || echo "Dəyişiklik yoxdur"
+          git push
