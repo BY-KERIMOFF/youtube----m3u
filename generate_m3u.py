@@ -2,7 +2,7 @@ import os
 import subprocess
 
 CHANNELS = {
-    "Adanali": "https://www.youtube.com/@Adanali/live"
+    "Adanali": "https://www.youtube.com/@Adanali"
 }
 
 COOKIES_FILE = "cookies.txt"
