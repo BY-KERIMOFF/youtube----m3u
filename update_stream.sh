@@ -1,11 +1,6 @@
 #!/bin/bash
 
-URL=$(python3 get_live_url.py)
-
-if [[ "$URL" == *"🚫"* ]]; then
-    echo "$URL"
-    exit 1
-fi
+URL="https://www.youtube.com/watch?v=TnKHC3tgl3s"
 
 STREAM_URL=$(yt-dlp -g "$URL" 2>/dev/null | head -n1)
 
