@@ -20,7 +20,7 @@ def save_m3u(link):
         f.write(f"{link}\n")
 
 if __name__ == "__main__":
-    custom_url = "@cennetmahallesishowtv"
+    custom_url = "@Adanali"
     live_link = get_live_stream_url(custom_url)
     if live_link:
         save_m3u(live_link)
