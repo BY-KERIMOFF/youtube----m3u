@@ -1,9 +1,9 @@
-name: Generate and Commit M3U Playlist
+name: Generate and Commit M3U Playlists
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'  # hər 10 dəqiqədə bir işə düşəcək
+    - cron: '*/10 * * * *'  # Hər 10 dəqiqə
 
 jobs:
   generate:
@@ -26,37 +26,18 @@ jobs:
       - name: Create cookies.txt from secret
         run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
 
-      - name: Generate playlist.m3u
-        shell: bash
-        timeout-minutes: 7
+      - name: Run Python script
         run: |
-          set -x
+          mkdir -p output
           python generate_m3u.py
 
       - name: Commit & Push if changed
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # 1. Lokaldakı dəyişiklikləri stash et
-          git stash push --include-untracked -m "pre-pull"
-
-          # 2. Remote-dan yeniləmələri rebase ilə al
-          git pull --rebase https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
-
-          # 3. Stash edilmiş dəyişiklikləri geri gətir
-          git stash pop || echo "No stash to pop"
-
-          # 4. Yeni yaradılmış playlist.m3u faylını stage et
-          git add playlist.m3u
-
-          # 5. Dəyişiklik varsa commit & push et
+          git add output/*.m3u
           if ! git diff --cached --quiet; then
-            git commit -m "Avtomatik yenilənmiş playlist.m3u"
+            git commit -m "🟢 Avtomatik yenilənmiş playlistlər"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
           else
-            echo "Heç bir dəyişiklik yoxdur → push edilmədi."
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            echo "✅ Heç bir dəyişiklik yoxdur."
