@@ -7,7 +7,7 @@ CHANNELS = {
     "SEKSENLER": "https://www.youtube.com/watch?v=8-uHZ4CCb-E",
     "ASKI MEMMU": "https://www.youtube.com/@AskMemnuKanalD",
     "GULSAH FILM": "https://www.youtube.com/watch?v=hfx8H7YrmTw",
-    "CENNET MAHALLESI": "https://www.youtube.com/watch?v=XXXXXXX",  # dəyiş
+    "CENNET MAHALLESI": "https://www.youtube.com/watch?v=XXXXXXX",
     "MUHTESEM YUZYIL": "https://www.youtube.com/watch?v=4HZW53S0bv8",
     "ADINI FERIHA KOYDUM": "https://www.youtube.com/watch?v=PikNiUKUGM4",
     "MEDCEZIR": "https://www.youtube.com/watch?v=MLUGblGpm8A",
@@ -37,9 +37,9 @@ CHANNELS = {
     "Yedi Numara": "https://www.youtube.com/@YediNumaraDizi",
     "Kiralık Aşk": "https://www.youtube.com/@KiralikAskDizi",
     "Söz": "https://www.youtube.com/@SozDizi",
-    "Kuruluş Osman": "https://www.youtube.com/@KurulusOsman"
-}
-
+    "Kuruluş Osman": "https://www.youtube.com/@KurulusOsman",
+    "Kurtlar Vadisi": "https://www.youtube.com/@KurtlarVadisiOfficial",
+    "Kurtlar Vadisi Pusu": "https://www.youtube.com/channel/UCz1UfNp9VFp9R1HEFn5PY5A"
 }
 
 COOKIES_FILE = "cookies.txt"
