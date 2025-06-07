@@ -2,11 +2,11 @@ name: Run main.py
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # Hər 2 saatda bir işləyir
+    - cron: '0 */2 * * *' # Hər 2 saatda bir avtomatik işləyir
   pull_request:
     branches:
       - main
-  workflow_dispatch: # Manual yeniləmə üçün tetikleme
+  workflow_dispatch: # Manual tetikleme imkanı
 
 jobs:
   build:
@@ -23,33 +23,30 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Dependency-ləri yüklə
+      # Requirements varsa onları yüklə
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Python skriptini işlə
+      # Python skriptini işə sal
       - name: Execute Python script
         run: |
-          python main.py config.json
+          python main.py youtube_channels.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Dəyişiklikləri commit və push et
+      # Əgər dəyişiklik olubsa, onları commit və push et
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # Dəyişiklikləri yoxla
           echo "Checking for changes..."
           git status
           
-          # Dəyişiklikləri əlavə et
           git add -A
           
-          # Dəyişiklik varsa commit et
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
