@@ -1,40 +1,40 @@
 import requests
-import sys
+from bs4 import BeautifulSoup
+import re
 
-def get_live_stream_url(channel_handle):
-    # Invidious public instance (işlək mirror): yewtu.be
-    api_url = f"https://yewtu.be/channel/{channel_handle}/live"
+def check_live_html(custom_url):
+    url = f"https://www.youtube.com/{custom_url}"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    resp = requests.get(url, headers=headers)
+    html = resp.text
+    
+    # BeautifulSoup parse
+    soup = BeautifulSoup(html, "html.parser")
+    
+    # 1) yt-badge-live badge-lər üçün
+    badge = soup.find("span", class_="yt-badge yt-badge-live")
+    if badge:
+        print("🔴 Canlı yayım badge-lə aşkarlandı!")
+        return True
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    # 2) JSON text içində " watching"
+    if re.search(r'\{"text":"\s*[\d,]+ watching"\}', html):
+        print("🔴 Canlı yayım watching indikatoru aşkarlandı!")
+        return True
 
-    try:
-        response = requests.get(api_url, headers=headers, allow_redirects=True)
-        final_url = response.url
+    print("🔕 Canlı yayım yoxdur.")
+    return False
 
-        # Əgər linkdə "watch?v=" varsa və "live" URL deyil – deməli canlı yayımdır
-        if "watch?v=" in final_url and "/live" not in final_url:
-            print("🔴 Canlı yayım AŞKARLANDI!")
-            return final_url
-        else:
-            print("🔕 Canlı yayım YOXDUR.")
-            return None
-
-    except Exception as e:
-        print(f"❌ Xəta baş verdi: {e}")
-        return None
-
-def save_m3u(link):
+def save_m3u(link="https://www.youtube.com/live"):
     with open("latest.m3u", "w", encoding="utf-8") as f:
         f.write("#EXTM3U\n")
         f.write("#EXTINF:-1,CANLI YAYIN\n")
         f.write(f"{link}\n")
-        print("✅ latest.m3u uğurla yazıldı.")
+    print("✅ latest.m3u faylı yaradıldı.")
 
 if __name__ == "__main__":
-    # Buraya istədiyin kanalın handle-ını yaz: məsələn @NBCNewsNOW, @Adanali, s.
-    channel_handle = "@NBCNewsNOW"  # dəyişmək olar
-    live_url = get_live_stream_url(channel_handle)
-    if live_url:
-        save_m3u(live_url)
+    custom_url = "@Adanali"  # dəyişmək olar
+    if check_live_html(custom_url):
+        # Faraqlıq üçün /live sonluğunu istifadə edirik
+        live_link = f"https://www.youtube.com/{custom_url}/live"
+        save_m3u(live_link)
