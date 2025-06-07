@@ -1,4 +1,7 @@
 feedparser
 yt-dlp
 python-slugify
+- name: Install dependencies
+  run: pip install beautifulsoup4
+
 
