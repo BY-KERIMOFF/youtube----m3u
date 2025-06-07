@@ -3,7 +3,7 @@ import subprocess
 
 input_file = "channels.json"
 output_file = "playlist.m3u"
-cookies_file = "cookies.txt"  # Cookie faylı buradan oxunacaq
+cookies_file = "cookies.txt"  # Brauzerdən ixrac etdiyin cookies faylı
 
 def get_m3u8_url(youtube_url):
     try:
