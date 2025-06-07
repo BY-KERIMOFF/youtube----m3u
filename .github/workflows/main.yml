@@ -1,32 +1,32 @@
-name: Günlük Playlist Yeniləmə
+name: Auto Generate YouTube M3U Playlist
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"  # 6 saatdan bir
   workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *' # hər 4 saatdan bir avtomatik işə düşəcək
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - name: Repo-nu klonla
+        uses: actions/checkout@v4
 
-    - name: Python quraşdır
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.x
+      - name: Python və yt-dlp quraşdır
+        run: |
+          python -m pip install --upgrade pip
+          pip install yt-dlp
 
-    - name: yt-dlp yüklə
-      run: pip install yt-dlp
+      - name: Skripti işə sal
+        run: python generate_playlist.py
 
-    - name: Playlist yarat
-      run: python generate_playlist.py
+      - name: Git parametrləri qur
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
-    - name: Dəyişiklikləri GitHub-a yüklə
-      run: |
-        git config --global user.name "GitHub Action"
-        git config --global user.email "action@github.com"
-        git add playlist.m3u
-        git commit -m "Auto-update playlist"
-        git push || echo "No changes"
+      - name: Dəyişiklikləri əlavə et və commit et
+        run: |
+          git add youtube_live.m3u
+          git commit -m "Auto-update youtube_live.m3u" || echo "Heç bir dəyişiklik yoxdur"
+          git push
