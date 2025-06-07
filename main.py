@@ -13,21 +13,14 @@ for channel in channels:
     url = channel["url"]
     
     try:
-        # yt-dlp ilə m3u8 linki çıxart
         stream_url = subprocess.check_output(["yt-dlp", "-g", url], text=True).strip()
-
-        # Fayl adı (məs: seksenler.m3u8)
         file_name = os.path.join(output_dir, f"{name.replace(' ', '_').lower()}.m3u8")
-        
-        # M3U8 fayl məzmunu
         m3u8_content = f"""#EXTM3U
 #EXTINF:-1,{name}
 {stream_url}
 """
         with open(file_name, "w", encoding="utf-8") as out_file:
             out_file.write(m3u8_content)
-
         print(f"[+] {name} üçün yazıldı: {file_name}")
-
     except subprocess.CalledProcessError:
         print(f"[!] {name} üçün stream tapılmadı.")
