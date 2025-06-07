@@ -2,8 +2,6 @@
 
 YouTube canlı yayım linklərini `yt-dlp` və `cookies.txt` ilə `.m3u8` formatında çıxarıb `playlist.m3u` faylı yaradır.
 
----
-
 ## İstifadə qaydası:
 
 1. Chrome və ya digər brauzerdən YouTube hesabına daxil ol.
