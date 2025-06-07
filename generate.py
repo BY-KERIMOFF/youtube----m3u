@@ -1,46 +1,31 @@
 import json
 import subprocess
+from pathlib import Path
 
-input_file = "channels.json"
-output_file = "playlist.m3u"
-cookies_file = "cookies.txt"  # Brauzerdən ixrac etdiyin cookies faylı
+with open("channels.json", "r", encoding="utf-8") as f:
+    channels = json.load(f)
 
-def get_m3u8_url(youtube_url):
+lines = ["#EXTM3U"]
+
+for ch in channels:
+    name = ch["name"]
+    url = ch["url"]
+    print(f"[+] Yoxlanır: {name}")
     try:
-        result = subprocess.run(
-            ['yt-dlp', '--cookies', cookies_file, '-g', youtube_url],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=20
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
+        result = subprocess.run([
+            "yt-dlp", "-g", "--cookies", "cookies.txt", url
+        ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+
+        m3u8 = result.stdout.strip()
+        if m3u8.startswith("http"):
+            lines.append(f"#EXTINF:-1,{name}\n{m3u8}")
+            print(f"    ✅ {name} əlavə olundu.")
         else:
-            print(f"[X] Problem: {youtube_url}\n{result.stderr}")
+            print(f"    ❌ Stream tapılmadı.")
     except Exception as e:
-        print(f"[!] Xəta baş verdi: {e}")
-    return None
+        print(f"    ❌ Xəta: {e}")
 
-def main():
-    with open(input_file, 'r', encoding='utf-8') as f:
-        channels = json.load(f)
+with open("playlist.m3u", "w", encoding="utf-8") as f:
+    f.write("\n".join(lines))
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write("#EXTM3U\n")
-
-        for channel in channels:
-            name = channel["name"]
-            url = channel["url"]
-            print(f"[+] Yoxlanır: {name}")
-            stream_url = get_m3u8_url(url)
-            if stream_url:
-                f.write(f"#EXTINF:-1,{name}\n{stream_url}\n")
-                print(f"    ✅ OK: {stream_url}")
-            else:
-                print(f"    ❌ Stream tapılmadı.")
-
-    print(f"\n🎉 Hazırlandı: {output_file}")
-
-if __name__ == "__main__":
-    main()
+print("\n🎉 Hazırlandı: playlist.m3u")
