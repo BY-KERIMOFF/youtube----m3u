@@ -1,18 +1,15 @@
-name: Generate M3U8
+name: Run generate.py
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
-  schedule:
-    - cron: '0 */3 * * *'  # Hər 3 saatda bir çalışacaq
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -25,18 +22,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run script
+      - name: Run generate.py
         run: python generate.py
 
       - name: Commit and push
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add m3u8/*.m3u8 || echo "No files"
+          git add m3u8/*.m3u8 || echo "No m3u8 files to add"
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto update m3u8 files [skip ci]"
+            git commit -m "Auto update m3u8 files"
             git push
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
