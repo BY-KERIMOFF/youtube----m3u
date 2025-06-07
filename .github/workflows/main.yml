@@ -1,40 +1,36 @@
-name: Run generate.py
 
-on:
-  push:
-  workflow_dispatch:
+---
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+## 🧠 Cookies necə çıxarılır (Vacib)
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+### 🔐 1. `cookies.txt` faylını necə əldə etmək olar?
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+**Ən asan yol:**
+- Chrome uzantısı: [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/lmjcdhbnlojpmjmnodnlpdfkdjflkobe)
+- YouTube-da açıq olduğunuzda uzantıdan `cookies.txt` ixrac edin.
+- Faylı skriptin yerləşdiyi yerə əlavə edin.
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+---
 
-      - name: Run generate.py
-        run: python generate.py
+## 🚀 GitHub-da necə işləyəcək?
 
-      - name: Commit and push
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add m3u8/*.m3u8 || echo "No m3u8 files to add"
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Auto update m3u8 files"
-            git push
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+### GitHub Actions ilə **avtomatik gündəlik işlətmək** üçün sənə `.github/workflows/generate.yml` faylı da əlavə edə bilərik. Amma **`cookies.txt`-i GitHub-a əlavə etmək təhlükəlidir**, çünki şəxsi giriş məlumatı sayılır.
+
+---
+
+## 🛑 Təhlükəsizlik Tövsiyəsi
+
+**GitHub-a `cookies.txt` yükləmək olmaz!** İçində Google hesab tokenləri ola bilər. Əgər hər şey lokal işləyirsə, təhlükəsizdir. GitHub-da isə belə həssas fayllar `.gitignore`-a əlavə edilməlidir.
+
+---
+
+## ✅ Nəticə
+
+Bu sistemlə sən:
+- `channels.json` vasitəsilə linkləri saxlayırsan
+- `generate_m3u.py` skripti `yt-dlp` və `cookies.txt` ilə `.m3u8` linkləri çıxarır
+- `playlist.m3u` faylı avtomatik yaranır
+
+---
+
+İstəyirsənsə indi sənə ZIP kimi yükləməyə hazır bir layihə paketi də hazırlaya bilərəm və ya `GitHub Actions` ilə avtomatlaşdırmanı da əlavə edə bilərəm. Hansını istəyirsən?
