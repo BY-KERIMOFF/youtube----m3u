@@ -1,10 +1,7 @@
-# 📺 Turkish Dizi IPTV Playlist
+# YouTube Live M3U Generator
 
-Bu repo, Türk YouTube kanallarından dinamik `.m3u` IPTV playlist yaradır.
+Bu layihə YouTube canlı yayım linkindən `.m3u8` streaming linkini çıxarır və onu `.m3u` faylına əlavə edir.
 
-## 🔁 Avtomatik Yenilənmə
-
-Bu fayl GitHub Actions vasitəsilə hər gün yenilənir.
-
-## 🔗 İstifadə Linki
-
+## 💡 Nümunə Link
+```python
+YOUTUBE_URL = "https://www.youtube.com/watch?v=5qap5aO4i9A"
