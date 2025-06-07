@@ -1,75 +1,39 @@
-### generate\_m3u.py
-
-```python
+import yt_dlp
 import os
-import json
-import subprocess
-from pathlib import Path
 
-# JSON file containing channel names and live URLs
-CHANNELS_FILE = Path("channels.json")
-# Directory to store individual M3U playlists
-OUTPUT_DIR = Path("playlists")
-OUTPUT_DIR.mkdir(exist_ok=True)
+channels = {
+    "SHOW_MAX": "https://www.youtube.com/channel/UC...1",
+    "YASAK_ELMA": "https://www.youtube.com/channel/UC...2",
+    "SEKSENLER": "https://www.youtube.com/channel/UC...3",
+}
 
-# Function to fetch HLS (.m3u8) URL using yt-dlp
-def get_m3u8_url(name, url):
-    cmd = [
-        "yt-dlp",
-        "--no-progress",
-        "--no-warnings",
-        "--no-check-certificate",
-        "-g",
-        url
-    ]
-    # Add login credentials if provided
-    user = os.getenv("YT_USERNAME")
-    pwd  = os.getenv("YT_PASSWORD")
-    if user and pwd:
-        cmd.insert(1, user)
-        cmd.insert(1, "--username")
-        cmd.insert(3, pwd)
-        cmd.insert(3, "--password")
+cookies = "cookies.txt"
+output_dir = "output"
+os.makedirs(output_dir, exist_ok=True)
 
+for name, url in channels.items():
+    print(f"[+] Processing: {name}")
     try:
-        proc = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=60
-        )
-        if proc.returncode == 0:
-            link = proc.stdout.strip().splitlines()[0]
-            return link
+        ydl_opts = {
+            "quiet": True,
+            "cookies": cookies,
+            "extract_flat": True,
+            "dump_single_json": True,
+            "playlistend": 5,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = ydl.extract_info(url, download=False)
+
+        if "entries" in result:
+            m3u_lines = ["#EXTM3U"]
+            for entry in result["entries"]:
+                m3u_lines.append(f'#EXTINF:-1,{entry["title"]}')
+                m3u_lines.append(entry["url"])
+            
+            with open(f"{output_dir}/{name}.m3u", "w", encoding="utf-8") as f:
+                f.write("\n".join(m3u_lines))
+            print(f"→ {name}.m3u yaradıldı.")
         else:
-            print(f"[!] {name}: error {proc.returncode}\n{proc.stderr}")
-    except subprocess.TimeoutExpired:
-        print(f"[!] {name}: TIMEOUT after 60s")
+            print(f"→ {name} üçün heç nə tapılmadı.")
     except Exception as e:
-        print(f"[!] {name}: Exception: {e}")
-    return None
-
-# Main execution
-if __name__ == "__main__":
-    if not CHANNELS_FILE.exists():
-        print("channels.json not found. Exiting.")
-        exit(1)
-
-    channels = json.loads(CHANNELS_FILE.read_text(encoding='utf-8'))
-    for ch in channels:
-        name = ch.get("name", "unknown").replace(" ", "_")
-        url  = ch.get("url", "")
-        print(f"Processing {name}")
-        link = get_m3u8_url(name, url)
-        if link:
-            out_file = OUTPUT_DIR / f"{name}.m3u"
-            with open(out_file, 'w', encoding='utf-8') as f:
-                f.write("#EXTM3U\n")
-                f.write(f"#EXTINF:-1,{name}\n")
-                f.write(link + "\n")
-                f.write("#EXTVLCOPT:http-user-agent=okhttp/4.12.0\n")
-            print(f"    ✅ Created {out_file}")
-        else:
-            print(f"    ❌ Failed for {name}")
-```
+        print(f"[X] {name} xətası: {e}")
