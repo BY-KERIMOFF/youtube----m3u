@@ -1,18 +1,18 @@
 import json
 import subprocess
 
-# Fayl adları
 input_file = "channels.json"
 output_file = "playlist.m3u"
+cookies_file = "cookies.txt"  # Cookie faylı buradan oxunacaq
 
 def get_m3u8_url(youtube_url):
     try:
         result = subprocess.run(
-            ['yt-dlp', '-g', youtube_url],
+            ['yt-dlp', '--cookies', cookies_file, '-g', youtube_url],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            timeout=15
+            timeout=20
         )
         if result.returncode == 0:
             return result.stdout.strip()
