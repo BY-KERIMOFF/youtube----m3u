@@ -1,6 +1,7 @@
 #!/bin/bash
 
-STREAM_URL="https://manifest.googlevideo.com/api/manifest/hls_variant/xyz123.m3u8?..."
+# YouTube canlı yayım linki (sabit)
+STREAM_URL="https://www.youtube.com/watch?v=TnKHC3tgl3s"
 
 cat <<EOF > stream.m3u8
 #EXTM3U
@@ -8,4 +9,4 @@ cat <<EOF > stream.m3u8
 $STREAM_URL
 EOF
 
-echo "✅ m3u8 faylı yeniləndi"
+echo "✅ stream.m3u8 faylı yeniləndi"
