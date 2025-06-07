@@ -2,32 +2,31 @@ name: Update Live Stream M3U8
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # hər 15 dəqiqə bir işə düşür
-  workflow_dispatch:        # əl ilə də işə salmaq mümkündür
+    - cron: '*/15 * * * *'  # 15 dəqiqədə bir
+  workflow_dispatch:
 
 jobs:
   update-stream:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repo klonlanır
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Lazımi proqramları quraşdır
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y jq ffmpeg python3-pip
+          sudo apt install -y ffmpeg python3-pip
           pip3 install -U yt-dlp
 
-      - name: Skripti icra et
+      - name: Run update script
         run: |
           chmod +x update_stream.sh
           ./update_stream.sh
 
-      - name: Dəyişiklikləri push et
+      - name: Commit and push if updated
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add stream.m3u8 || true
-          git commit -m "🔁 m3u8 yeniləndi" || echo "Dəyişiklik yoxdu"
+          git commit -m "🔄 Update stream.m3u8" || echo "No changes to commit"
           git push
