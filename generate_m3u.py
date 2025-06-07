@@ -18,6 +18,28 @@ CHANNELS = {
     "YEDI NUMARA": "https://www.youtube.com/watch?v=rS5dHYQsSxs",
     "KIRALIK ASK": "https://www.youtube.com/watch?v=n3_DG0Sv0kw",
     "SOZ": "https://www.youtube.com/watch?v=2TPSPnQwy34",
+    "Show TV": "https://www.youtube.com/watch?v=ouuCjEjyKVI",
+    "Star TV": "https://www.youtube.com/watch?v=6wHAK439FDI",
+    "Kanal D": "https://www.youtube.com/watch?v=6wHAK439FDI",
+    "atv": "https://www.youtube.com/channel/UCUVZ7T_kwkxDOGFcDlFI-hg/live",
+    "TRT Haber": "https://www.youtube.com/watch?v=qj5k4yqH6nk",
+    "A Haber": "https://www.youtube.com/watch?v=n8ZzARa5IjQ",
+    "NTV": "https://www.youtube.com/watch?v=lMfRYzZ3XG8",
+    "CNN Türk": "https://www.youtube.com/watch?v=VXMR3YQ7W3s",
+    "Habertürk TV": "https://www.youtube.com/watch?v=RNVNlJSUFoE",
+    "Haber Global TV": "https://www.youtube.com/watch?v=6g_DvD8e2T0",
+    "Yasak Elma": "https://www.youtube.com/@YasakElmaDizi",
+    "Aşk-ı Memnu": "https://www.youtube.com/@AskMemnuKanalD",
+    "Muhteşem Yüzyıl": "https://www.youtube.com/@MuhtesemYuzyilDizi",
+    "Adını Feriha Koydum": "https://www.youtube.com/@AdiniFerihaKoydumDizi",
+    "Medcezir": "https://www.youtube.com/@MedcezirDizi",
+    "Sihirli Annem": "https://www.youtube.com/@SihirliAnnemDizi",
+    "Yedi Numara": "https://www.youtube.com/@YediNumaraDizi",
+    "Kiralık Aşk": "https://www.youtube.com/@KiralikAskDizi",
+    "Söz": "https://www.youtube.com/@SozDizi",
+    "Kuruluş Osman": "https://www.youtube.com/@KurulusOsman"
+}
+
 }
 
 COOKIES_FILE = "cookies.txt"
