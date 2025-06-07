@@ -8,9 +8,9 @@ with open("channels.json", "r", encoding="utf-8") as f:
 Path("m3u8").mkdir(exist_ok=True)
 
 for channel in channels:
-    name = channel["name"]
-    group = channel["group"]
-    url = channel["url"]
+    name = channel.get("name", "No Name")
+    group = channel.get("group", "General")  # Əgər group yoxdursa, General yazılır
+    url = channel.get("url", "")
 
     filename = slugify(name) + ".m3u8"
     with open(f"m3u8/{filename}", "w", encoding="utf-8") as f:
