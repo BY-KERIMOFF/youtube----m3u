@@ -1,21 +1,21 @@
-name: Generate M3U8 Files
+name: Generate M3U8
 
 on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '0 */2 * * *'  # Hər 2 saatda bir
   workflow_dispatch:
+  schedule:
+    - cron: '0 */3 * * *'  # Hər 3 saatda bir çalışacaq
 
 jobs:
-  generate:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -23,21 +23,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Əgər yt-dlp və ya başqa paket lazımdırsa, requirements.txt faylında yaz
+          pip install -r requirements.txt
 
-      - name: Run generate.py
+      - name: Run script
         run: python generate.py
 
-      - name: Commit and push changes
+      - name: Commit and push
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add m3u8/*.m3u8 || echo "No m3u8 files to add"
+          git add m3u8/*.m3u8 || echo "No files"
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Auto update m3u8 files [skip ci]"
             git push
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
