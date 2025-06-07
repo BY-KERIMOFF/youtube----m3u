@@ -1,3 +1,4 @@
+feedparser
 yt-dlp
 python-slugify
 
