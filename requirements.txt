@@ -1,11 +1,6 @@
 beautifulsoup4
 requests
-feedparser
-yt-dlp
-python-slugify
-pip install beautifulsoup4 requests
-pip install -U yt-dlp
-pip3 install -U yt-dlp
+
 
 
 
