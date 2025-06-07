@@ -3,7 +3,7 @@ name: Generate and Commit M3U Playlist
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'  # Hər gün UTC 12:00-da işə düşəcək
+    - cron: '*/10 * * * *'  # hər 10 dəqiqədə bir işə düşəcək
 
 jobs:
   generate:
