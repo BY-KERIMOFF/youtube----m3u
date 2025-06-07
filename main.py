@@ -1,37 +1,33 @@
-import json
 import os
-import re
+import json
+import subprocess
 
-def sanitize_filename(name):
-    return re.sub(r'[^\w\-_.]', '_', name.strip())
+with open("channels.json", "r", encoding="utf-8") as f:
+    channels = json.load(f)
 
-def main():
-    input_file = "youtube_channels.json"
-    output_dir = "m3u8_channels"
-    os.makedirs(output_dir, exist_ok=True)
+output_dir = "m3u8"
+os.makedirs(output_dir, exist_ok=True)
 
-    with open(input_file, "r", encoding="utf-8") as f:
-        channels = json.load(f)
+for channel in channels:
+    name = channel["name"]
+    url = channel["url"]
+    
+    try:
+        # yt-dlp ilə m3u8 linki çıxart
+        stream_url = subprocess.check_output(["yt-dlp", "-g", url], text=True).strip()
 
-    for ch in channels:
-        name = ch.get("name", "No_Name").strip()
-        url = ch.get("url", "").strip()
+        # Fayl adı (məs: seksenler.m3u8)
+        file_name = os.path.join(output_dir, f"{name.replace(' ', '_').lower()}.m3u8")
+        
+        # M3U8 fayl məzmunu
+        m3u8_content = f"""#EXTM3U
+#EXTINF:-1,{name}
+{stream_url}
+"""
+        with open(file_name, "w", encoding="utf-8") as out_file:
+            out_file.write(m3u8_content)
 
-        if not url:
-            continue
+        print(f"[+] {name} üçün yazıldı: {file_name}")
 
-        filename = sanitize_filename(name) + ".m3u8"
-        filepath = os.path.join(output_dir, filename)
-
-        with open(filepath, "w", encoding="utf-8") as out:
-            out.write("#EXTM3U\n")
-            out.write("#EXT-X-VERSION:3\n")
-            out.write("#EXT-X-STREAM-INF:BANDWIDTH=2096000\n")
-            out.write(f"{url}\n")
-            out.write("#EXT-X-STREAM-INF:BANDWIDTH=796000\n")
-            out.write(f"{url}\n")
-
-        print(f"{filename} yaradıldı.")
-
-if __name__ == "__main__":
-    main()
+    except subprocess.CalledProcessError:
+        print(f"[!] {name} üçün stream tapılmadı.")
