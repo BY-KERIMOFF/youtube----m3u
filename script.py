@@ -1,10 +1,11 @@
 import subprocess
 from datetime import datetime
 
-# Buraya canlı YouTube yayımlarını əlavə edə bilərsən
 youtube_links = {
     "Space TV": "https://www.youtube.com/watch?v=lf1NxAexRAE"
 }
+
+cookie_file = "youtube_cookies.txt"  # eyni qovluqda saxla
 
 m3u8_content = "#EXTM3U\n"
 stream_count = 0
@@ -12,7 +13,11 @@ stream_count = 0
 for name, url in youtube_links.items():
     print(f"➡️ {name} üçün link çıxarılır...")
     try:
-        stream_url = subprocess.check_output(["yt-dlp", "-g", "-f", "best", url]).decode().strip()
+        stream_url = subprocess.check_output([
+            "yt-dlp",
+            "--cookies", cookie_file,
+            "-g", url
+        ]).decode().strip()
         print(f"✅ {name} link: {stream_url}")
         m3u8_content += f"#EXTINF:-1,{name}\n{stream_url}\n"
         stream_count += 1
