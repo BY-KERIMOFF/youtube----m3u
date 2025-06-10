@@ -1,39 +1,21 @@
-# YouTube Live M3U8 Playlist Generator
+# YouTube Live M3U8 Generator
 
-Bu GitHub repositoriyası avtomatik olaraq `.m3u8` formatında **YouTube canlı yayım** playlist faylı yaradır.
+Bu repository YouTube video linkindən canlı yayımın `.m3u8` axın URL-sini çıxarıb `.m3u8` faylı yaradır.
 
-## 📺 Canlı Kanal
-Hal-hazırda daxil edilmiş kanal:
-- **TRT Haber** (Türkiyə xəbər kanalı)
+## Necə istifadə etmək olar?
 
-## 🔁 Avtomatik Yenilənmə
+1. `generate_m3u8.py` faylında `youtube_url` dəyişənini istədiyiniz YouTube canlı yayım linki ilə dəyişin.
+2. Repository-də `.github/workflows/update.yml` faylı var, workflow-u GitHub Actions-da əl ilə işə sala bilərsiniz.
+3. Workflow işləyəndə `youtube_live.m3u8` faylı yenilənəcək və repoya push olunacaq.
+4. Bu `.m3u8` faylını IPTV playerlərdə və ya hər hansı `.m3u8` dəstəkləyən pleyerdə istifadə edə bilərsiniz.
 
-GitHub Actions vasitəsilə `.m3u8` faylı avtomatik **hər 6 saatdan bir** yenilənir.
+## Tələblər
 
-## ✅ İstifadə qaydası
+- Python 3.7+
+- `yt-dlp` kitabxanası
 
-`.m3u8` faylını bu linkdən birbaşa IPTV pleyerlərə əlavə edə bilərsiniz:
+## Lokal işə salmaq
 
-```
-https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/trt_haber_live.m3u8
-```
-
-> `YOUR_USERNAME` və `YOUR_REPO` hissələrini öz GitHub istifadəçi adı və repozitoriya adınızla əvəz edin.
-
-## 🛠️ Fayllar
-
-- `generate_m3u8.py` – `.m3u8` faylı yaradan Python skripti
-- `.github/workflows/update.yml` – GitHub Actions workflow (avtomatik işləmə üçün)
-
-## 🎯 Uyğun Proqramlar
-
-Bu `.m3u8` faylı aşağıdakı proqramlarla işləyir:
-- VLC Media Player
-- Smart IPTV / OTT Navigator
-- Kodi
-- MX Player (Android)
-- IPTV Smarters Pro
-
-## 💬 Əlaqə
-
-Əgər əlavə kanal və ya funksiyalar əlavə etmək istəyirsinizsə, issue açın və ya pull request göndərin.
+```bash
+pip install yt-dlp
+python generate_m3u8.py
