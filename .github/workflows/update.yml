@@ -1,32 +1,29 @@
-name: Update YouTube M3U8
+name: Generate m3u8 with yt-dlp
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # manuel işə salma üçün, istəyə görə dəyişdirə bilərsən
 
 jobs:
-  build:
+  download_video:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Write cookies.txt from secret
+      run: |
+        cat > cookies.txt <<EOF
+${{ secrets.YT_COOKIES }}
+EOF
 
-      - name: Write cookies.txt from secret
-        run: echo "${{ secrets.YT_COOKIES }}" > cookies.txt
+    - name: Install yt-dlp
+      run: |
+        python3 -m pip install --upgrade yt-dlp
 
-      - name: Install dependencies
-        run: pip install yt-dlp
+    - name: Run generate_m3u8.py script
+      run: |
+        python3 generate_m3u8.py
 
-      - name: Run generate_m3u8.py
-        run: python generate_m3u8.py
-
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add youtube_live.m3u8
-          git diff --cached --quiet || git commit -m "🔁 Update youtube_live.m3u8"
-          git push
+    - name: Show cookies.txt content (for debug)
+      run: cat cookies.txt
