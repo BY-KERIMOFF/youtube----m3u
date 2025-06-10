@@ -7,27 +7,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Reponu klonla
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          persist-credentials: false  # Default olaraq true-dur, onu söndürürük ki, öz token ilə push edək.
+          persist-credentials: true  # Bu önəmlidir, token avtomatik verilir
 
-      - name: Python quraşdır
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: M3U8 faylını yarat
+      - name: Run script to generate m3u8
         run: python generate_m3u8.py
 
-      - name: Git konfiqurasiya
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
-      - name: Push dəyişiklikləri
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
           git add trt_haber_live.m3u8
-          git diff --cached --quiet || (git commit -m "🔁 Əl ilə yeniləmə" && git push origin HEAD:${{ github.ref_name }})
+          git diff --cached --quiet || git commit -m "🔁 Update m3u8 file"
+          git push
