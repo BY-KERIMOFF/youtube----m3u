@@ -1,7 +1,7 @@
 name: Update M3U8
 
 on:
-  workflow_dispatch:  # Yalnız manual işlətmək üçün
+  workflow_dispatch:  # Bu hissə sayəsində əl ilə işə salmaq mümkün olur
 
 jobs:
   build:
