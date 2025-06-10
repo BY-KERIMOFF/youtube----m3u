@@ -1,18 +1,19 @@
 import yt_dlp
+import os
 
-# YouTube video linki
 youtube_url = "https://www.youtube.com/watch?v=6wHAK439FDI"
+cookies_file = "cookies.txt"
 
 def get_m3u8_url(youtube_url):
     ydl_opts = {
         'quiet': True,
         'skip_download': True,
+        'cookiefile': cookies_file if os.path.exists(cookies_file) else None,
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
         formats = info.get('formats', [])
         for f in formats:
-            # 'm3u8_native' protokolu olan axını tap
             if f.get('protocol') == 'm3u8_native':
                 return f.get('url')
     return None
