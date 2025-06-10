@@ -2,7 +2,7 @@ name: Update M3U8 File
 
 on:
   schedule:
-    - cron: "*/30 * * * *"  # Hər 30 dəqiqədə bir işə düşür
+    - cron: "*/30 * * * *"  # Hər 30 dəqiqə
   workflow_dispatch:
 
 jobs:
@@ -22,10 +22,10 @@ jobs:
       - name: Scripti işə sal
         run: python3 script.py
 
-      - name: Dəyişiklikləri GitHub-a push et
+      - name: Git-ə dəyişiklikləri yüklə
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add live_channels.m3u8
-          git commit -m "Auto update M3U8 [$(date)]" || echo "No changes"
+          git commit -m "Auto update M3U8 [$(date)]" || echo "No changes to commit"
           git push
