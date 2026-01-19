@@ -1,0 +1,3 @@
+#EXTM3U
+#EXT-X-STREAM-INF:BANDWIDTH=3100000,CODECS="avc1.64001F,mp4a.40.2",RESOLUTION=1024x818
+https://a8.radyotelekom.com.tr:3829/stream/play.m3u8
