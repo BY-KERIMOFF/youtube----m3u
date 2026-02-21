@@ -1,21 +1,61 @@
 # YouTube Live M3U8 Generator
 
-Bu repository YouTube video linkindən canlı yayımın `.m3u8` axın URL-sini çıxarıb `.m3u8` faylı yaradır.
+Bu repository YouTube canlı yayım linklərini `json` fayldan oxuyub `.m3u8` playlist yaradır.
 
-## Necə istifadə etmək olar?
+## Hazır TV kanal siyahısı
 
-1. `generate_m3u8.py` faylında `youtube_url` dəyişənini istədiyiniz YouTube canlı yayım linki ilə dəyişin.
-2. Repository-də `.github/workflows/update.yml` faylı var, workflow-u GitHub Actions-da əl ilə işə sala bilərsiniz.
-3. Workflow işləyəndə `youtube_live.m3u8` faylı yenilənəcək və repoya push olunacaq.
-4. Bu `.m3u8` faylını IPTV playerlərdə və ya hər hansı `.m3u8` dəstəkləyən pleyerdə istifadə edə bilərsiniz.
+Repo daxilində `youtube_channels.json` faylı hazır gəlir və bu kanalları ehtiva edir:
+- Kanal D
+- Show TV
+- Star TV
+- ATV
+- TRT 1
+
+İstəsən bu fayla əlavə kanallar da yaza bilərsən.
+
+## İstifadə
+
+```bash
+pip install -r requirements.txt
+python script.py
+```
+
+Default olaraq `youtube_channels.json` oxunur və `live_channels.m3u8` yenilənir.
+
+## Token avtomatik yenilənsin (watch rejimi)
+
+YouTube axın URL-lərindəki tokenlər vaxt keçdikcə köhnəlir. Bunu azaltmaq üçün scripti periodik yenilənmə rejimində işlət:
+
+```bash
+python script.py --watch --interval 1800
+```
+
+Bu, hər 30 dəqiqədən bir `live_channels.m3u8` faylını yenidən yaradacaq.
+
+## Parametrlər
+
+- `--source-json youtube_channels.json` — kanalların oxunacağı json faylı.
+- `--cookies youtube_cookies.txt` — `yt-dlp` üçün cookie faylı (fayl yoxdursa cookies-siz davam edir).
+- `--output live_channels.m3u8` — çıxış playlist adı.
+- `--watch` — fasiləsiz yeniləmə rejimi.
+- `--interval 1800` — yenilənmə intervalı (saniyə, 0-dan böyük olmalıdır).
+
+## JSON formatı
+
+`script.py` `channels` massivində `name` və `url` açarlarını gözləyir:
+
+```json
+{
+  "channels": [
+    {
+      "name": "Kanal D",
+      "url": "https://www.youtube.com/@KanalD/live"
+    }
+  ]
+}
+```
 
 ## Tələblər
 
-- Python 3.7+
-- `yt-dlp` kitabxanası
-
-## Lokal işə salmaq
-
-```bash
-pip install yt-dlp
-python generate_m3u8.py
+- Python 3.9+
+- `yt-dlp`

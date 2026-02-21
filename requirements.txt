@@ -1,10 +1,1 @@
-     
-- name: Install dependencies
-run: pip install -r requirements.txt
-beautifulsoup4
-requests
-
-
-
-
-
+yt-dlp
