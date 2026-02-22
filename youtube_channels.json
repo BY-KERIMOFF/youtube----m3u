@@ -1,0 +1,72 @@
+{
+  "channels": [
+    {
+      "name": "Kanal D",
+      "url": "https://www.youtube.com/@KanalD/live"
+    },
+    {
+      "name": "Show TV",
+      "url": "https://www.youtube.com/@showtv/live"
+    },
+    {
+      "name": "Star TV",
+      "url": "https://www.youtube.com/@startv/live"
+    },
+    {
+      "name": "ATV",
+      "url": "https://www.youtube.com/@atv/live"
+    },
+    {
+      "name": "TRT 1",
+      "url": "https://www.youtube.com/@trt1/live"
+    },
+    {
+      "name": "A Haber",
+      "url": "https://www.youtube.com/@ahaber/live"
+    },
+    {
+      "name": "CNN TÜRK",
+      "url": "https://www.youtube.com/@cnnturk/live"
+    },
+    {
+      "name": "Haber Global",
+      "url": "https://www.youtube.com/@HaberGlobal/live"
+    },
+    {
+      "name": "tv100",
+      "url": "https://www.youtube.com/@tv100/live"
+    },
+    {
+      "name": "TV8",
+      "url": "https://www.youtube.com/@tv8/live"
+    },
+    {
+      "name": "Ülke TV",
+      "url": "https://www.youtube.com/@ulketv/live"
+    },
+    {
+      "name": "Bengü Türk",
+      "url": "https://www.youtube.com/@benguturktv/live"
+    },
+    {
+      "name": "TGRT Haber",
+      "url": "https://www.youtube.com/@tgrthabertv/live"
+    },
+    {
+      "name": "KRT TV",
+      "url": "https://www.youtube.com/@KRTTV/live"
+    },
+    {
+      "name": "A Spor",
+      "url": "https://www.youtube.com/@aspor/live"
+    },
+    {
+      "name": "TRT Haber",
+      "url": "https://www.youtube.com/@trthaber/live"
+    },
+    {
+      "name": "SABAH",
+      "url": "https://www.youtube.com/@sabah/live"
+    }
+  ]
+}
