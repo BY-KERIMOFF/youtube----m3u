@@ -42,7 +42,9 @@ Bu, hər 30 dəqiqədən bir `live_channels.m3u8` faylını yenidən yaradacaq.
 
 ## JSON formatı
 
-`script.py` `channels` massivində `name` və `url` açarlarını gözləyir:
+`script.py` `channels` massivində `name` və `url` açarlarını gözləyir. İstəyə görə
+`extractor: "web_m3u8"` verərək saytdan hər yeniləmədə yeni token-li `.m3u8`
+linkini avtomatik çıxara bilərsən:
 
 ```json
 {
@@ -50,6 +52,12 @@ Bu, hər 30 dəqiqədən bir `live_channels.m3u8` faylını yenidən yaradacaq.
     {
       "name": "Kanal D",
       "url": "https://www.youtube.com/@KanalD/live"
+    },
+    {
+      "name": "tv8",
+      "url": "https://www.tv8.com.tr/canli-yayin",
+      "extractor": "web_m3u8",
+      "preferred_keyword": "tv8_1080p.m3u8"
     }
   ]
 }
