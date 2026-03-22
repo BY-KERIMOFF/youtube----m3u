@@ -1,33 +1,67 @@
 import argparse
 import json
+import re
 import subprocess
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
+from urllib.request import Request, urlopen
 
 DEFAULT_OUTPUT_FILE = Path("live_channels.m3u8")
 DEFAULT_SOURCE_FILE = Path("youtube_channels.json")
 
 
-def load_youtube_links(source_file: Path) -> Dict[str, str]:
+def extract_first_m3u8_from_page(page_url: str, preferred_keyword: str = "") -> str:
+    request = Request(
+        page_url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            )
+        },
+    )
+    with urlopen(request, timeout=20) as response:
+        html = response.read().decode("utf-8", errors="ignore")
+
+    candidates = re.findall(r"https?://[^\"'\s]+\.m3u8[^\"'\s]*", html)
+    if not candidates:
+        return ""
+
+    if preferred_keyword:
+        for candidate in candidates:
+            if preferred_keyword in candidate:
+                return candidate
+
+    return candidates[0]
+
+
+def load_channels(source_file: Path) -> List[Dict[str, str]]:
     if not source_file.exists():
         raise FileNotFoundError(f"JSON faylı tapılmadı: {source_file}")
 
     data = json.loads(source_file.read_text(encoding="utf-8"))
     channels = data.get("channels", [])
 
-    youtube_links: Dict[str, str] = {}
+    channel_list: List[Dict[str, str]] = []
     for item in channels:
         name = item.get("name", "")
         url = item.get("url", "")
         if not name or not url:
             continue
-        if "youtube.com" not in url and "youtu.be" not in url:
-            continue
-        youtube_links[name] = url
+        extractor = item.get("extractor", "")
+        preferred_keyword = item.get("preferred_keyword", "")
+        channel_list.append(
+            {
+                "name": name,
+                "url": url,
+                "extractor": extractor,
+                "preferred_keyword": preferred_keyword,
+            }
+        )
 
-    return youtube_links
+    return channel_list
 
 
 def fetch_stream_url(url: str, cookie_file: Optional[Path]) -> str:
@@ -40,14 +74,32 @@ def fetch_stream_url(url: str, cookie_file: Optional[Path]) -> str:
     return lines[-1] if lines else ""
 
 
-def build_playlist(youtube_links: Dict[str, str], cookie_file: Optional[Path]) -> Tuple[str, int]:
+def resolve_stream_url(channel: Dict[str, str], cookie_file: Optional[Path]) -> str:
+    url = channel["url"]
+    extractor = channel.get("extractor", "")
+    preferred_keyword = channel.get("preferred_keyword", "")
+
+    if extractor == "web_m3u8":
+        return extract_first_m3u8_from_page(url, preferred_keyword)
+
+    if "youtube.com" in url or "youtu.be" in url:
+        return fetch_stream_url(url, cookie_file)
+
+    if ".m3u8" in url:
+        return url
+
+    return ""
+
+
+def build_playlist(channels: List[Dict[str, str]], cookie_file: Optional[Path]) -> Tuple[str, int]:
     m3u8_content = "#EXTM3U\n"
     stream_count = 0
 
-    for name, url in youtube_links.items():
+    for channel in channels:
+        name = channel["name"]
         print(f"➡️  {name} üçün link çıxarılır...")
         try:
-            stream_url = fetch_stream_url(url, cookie_file)
+            stream_url = resolve_stream_url(channel, cookie_file)
             if not stream_url:
                 raise RuntimeError("Boş stream URL qaytarıldı")
 
@@ -64,8 +116,8 @@ def write_playlist(output_file: Path, content: str) -> None:
     output_file.write_text(content, encoding="utf-8")
 
 
-def run_once(output_file: Path, cookie_file: Optional[Path], youtube_links: Dict[str, str]) -> bool:
-    content, stream_count = build_playlist(youtube_links, cookie_file)
+def run_once(output_file: Path, cookie_file: Optional[Path], channels: List[Dict[str, str]]) -> bool:
+    content, stream_count = build_playlist(channels, cookie_file)
 
     if stream_count > 0:
         write_playlist(output_file, content)
@@ -87,7 +139,7 @@ def positive_int(value: str) -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "YouTube canlı yayım linklərini json fayldan oxuyub m3u faylına çıxarır. "
+            "Canlı yayım linklərini json fayldan oxuyub m3u faylına çıxarır. "
             "--watch ilə periodik yeniləmə edib tokenlərin köhnəlməsini azaldır."
         )
     )
@@ -131,24 +183,24 @@ def main() -> int:
         print(f"⚠️ Cookie faylı tapılmadı: {cookie_path}. Cookies-siz davam edilir.")
 
     try:
-        youtube_links = load_youtube_links(source_json)
+        channels = load_channels(source_json)
     except Exception as exc:
         print(f"❌ JSON oxunmadı: {exc}")
         return 1
 
-    if not youtube_links:
-        print("❌ JSON daxilində YouTube kanalı tapılmadı.")
+    if not channels:
+        print("❌ JSON daxilində kanal tapılmadı.")
         return 1
 
-    print(f"ℹ️ {len(youtube_links)} YouTube kanal tapıldı ({source_json}).")
+    print(f"ℹ️ {len(channels)} kanal tapıldı ({source_json}).")
 
     if not args.watch:
-        return 0 if run_once(output_file, cookie_file, youtube_links) else 1
+        return 0 if run_once(output_file, cookie_file, channels) else 1
 
     print(f"🔄 Watch rejimi aktivdir. Hər {args.interval} saniyədə yenilənəcək.")
     try:
         while True:
-            run_once(output_file, cookie_file, youtube_links)
+            run_once(output_file, cookie_file, channels)
             time.sleep(args.interval)
     except KeyboardInterrupt:
         print("\n🛑 Dayandırıldı.")
