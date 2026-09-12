@@ -631,19 +631,19 @@ def fallback_find(request_context, channel_id):
 
 
 def prepare_folders():
-    os.makedirs("streams", exist_ok=True)
-    for f in os.listdir("streams"):
+    os.makedirs("tv2", exist_ok=True)
+    for f in os.listdir("tv2"):
         if f.endswith(".m3u") or f.endswith(".m3u8") or f.endswith(".error.txt") or f in ("links.txt", "github_links.txt"):
             try:
-                os.remove(os.path.join("streams", f))
+                os.remove(os.path.join("tv2", f))
             except Exception:
                 pass
-    print("[CLEAN] streams/ kohne fayllar silindi")
-    os.makedirs("streams", exist_ok=True)
+    print("[CLEAN] tv2/ kohne fayllar silindi")
+    os.makedirs("tv2", exist_ok=True)
 
 
 def write_m3u(channel_id, channel, stream_url):
-    path = os.path.join("streams", f"{channel_id}.m3u")
+    path = os.path.join("tv2", f"{channel_id}.m3u")
     content = (
         "#EXTM3U\n"
         f'#EXTINF:-1 tvg-id="{channel_id}" tvg-name="{channel["name"]}" '
@@ -658,7 +658,7 @@ def write_m3u(channel_id, channel, stream_url):
 def write_quality_playlist(channel_id, channel, variants):
     if not variants:
         return None
-    path = os.path.join("streams", f"{channel_id}_all.m3u8")
+    path = os.path.join("tv2", f"{channel_id}_all.m3u8")
     content = build_quality_playlist(channel_id, channel, variants, None)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
@@ -667,7 +667,7 @@ def write_quality_playlist(channel_id, channel, variants):
 
 
 def write_error(channel_id, channel):
-    path = os.path.join("streams", f"{channel_id}.error.txt")
+    path = os.path.join("tv2", f"{channel_id}.error.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write(
             f"Kanal: {channel['name']}\n"
@@ -689,7 +689,7 @@ def write_all_m3u(results):
             write_m3u(cid, ch, master)
         if variants:
             write_quality_playlist(cid, ch, variants)
-    all_path = os.path.join("streams", "all.m3u")
+    all_path = os.path.join("tv2", "all.m3u")
     lines = ["#EXTM3U"]
     for cid, ch in CHANNELS.items():
         data = results.get(cid)
@@ -706,7 +706,7 @@ def write_all_m3u(results):
     with open(all_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     print(f"[WRITE] {all_path}")
-    links_path = os.path.join("streams", "links.txt")
+    links_path = os.path.join("tv2", "links.txt")
     with open(links_path, "w", encoding="utf-8") as f:
         for cid, ch in CHANNELS.items():
             data = results.get(cid)
@@ -718,8 +718,8 @@ def write_all_m3u(results):
             f.write(f"# {ch['name']}\n{master}\n\n")
     print(f"[WRITE] {links_path}")
     repo = os.environ.get("GITHUB_REPOSITORY", "USERNAME/REPO")
-    base = f"https://raw.githubusercontent.com/{repo}/main/streams"
-    github_links_path = os.path.join("streams", "github_links.txt")
+    base = f"https://raw.githubusercontent.com/{repo}/main/tv2"
+    github_links_path = os.path.join("tv2", "github_links.txt")
     with open(github_links_path, "w", encoding="utf-8") as f:
         f.write("# BUTUN KANALLAR (TEK playlist)\n")
         f.write(f"{base}/all.m3u\n\n")
