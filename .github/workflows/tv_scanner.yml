@@ -12,6 +12,10 @@ on:
       - 'tv_channels.py'
       - '.github/workflows/*.yml'
 
+concurrency:
+  group: tv-scanner-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -25,6 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -59,15 +64,35 @@ jobs:
           echo "=== tv2/github_links.txt ==="
           cat tv2/github_links.txt 2>/dev/null || echo "github_links.txt tapilmadi"
 
-      - name: Commit and push results
+      - name: Git config
         if: always()
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+      - name: Commit changes
+        if: always()
+        run: |
           git add tv2/ || true
           if git diff --staged --quiet; then
             echo "Dəyişiklik yoxdur, commit edilmir."
+            echo "SKIP_PUSH=1" >> $GITHUB_ENV
           else
             git commit -m "Auto-update tv2 streams: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            git push
+            echo "SKIP_PUSH=0" >> $GITHUB_ENV
           fi
+
+      - name: Pull latest changes (rebase)
+        if: always() && env.SKIP_PUSH == '0'
+        run: |
+          git fetch origin main
+          git rebase origin/main || {
+            echo "Rebase konflikti, merge istifadə edilir..."
+            git rebase --abort || true
+            git pull --no-rebase origin main -X ours || true
+          }
+
+      - name: Push changes
+        if: always() && env.SKIP_PUSH == '0'
+        run: |
+          git push origin HEAD:main
