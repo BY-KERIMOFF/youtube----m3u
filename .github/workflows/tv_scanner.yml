@@ -47,23 +47,9 @@ jobs:
         run: |
           python tv_channels.py
 
-      - name: Create tv2 folder and move m3u files
-        if: always()
-        run: |
-          mkdir -p tv2
-          if [ -d "streams" ]; then
-            cp -f streams/*.m3u tv2/ 2>/dev/null || true
-            cp -f streams/*.m3u8 tv2/ 2>/dev/null || true
-            cp -f streams/links.txt tv2/ 2>/dev/null || true
-            cp -f streams/github_links.txt tv2/ 2>/dev/null || true
-          fi
-
       - name: Show results
         if: always()
         run: |
-          echo "=== streams/ qovluğu ==="
-          ls -la streams/ || true
-          echo ""
           echo "=== tv2/ qovluğu ==="
           ls -la tv2/ || true
           echo ""
@@ -79,7 +65,6 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add tv2/ || true
-          git add streams/ || true
           if git diff --staged --quiet; then
             echo "Dəyişiklik yoxdur, commit edilmir."
           else
