@@ -14,9 +14,6 @@ SITE_URL = "https://www.ecanlitvizle.live/canlitv"
 BASE_URL = "https://www.ecanlitvizle.live"
 OUTPUT_DIR = "tv2"
 
-# Saytdan tapılan kanallar bura yazılacaq
-CHANNELS = {}
-
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -25,11 +22,6 @@ USER_AGENT = (
 
 M3U8_REGEX = re.compile(
     r"""https?://[^\s"'<>\\]+?\.m3u8(?:\?[^\s"'<>\\]*)?""",
-    re.IGNORECASE,
-)
-
-RELATIVE_M3U8_REGEX = re.compile(
-    r"""["']([^"']+?\.m3u8(?:\?[^"']*)?)["']""",
     re.IGNORECASE,
 )
 
@@ -73,17 +65,13 @@ def extract_m3u8(text, base_url):
         url = normalize_url(match, base_url)
         if url and url not in found:
             found.append(url)
-    for match in RELATIVE_M3U8_REGEX.findall(text):
-        url = normalize_url(match, base_url)
-        if url and url not in found:
-            found.append(url)
     cleaned = text.replace("\\/", "/").replace("\\u002F", "/").replace("&amp;", "&")
     for match in M3U8_REGEX.findall(cleaned):
         url = normalize_url(match, base_url)
         if url and url not in found:
             found.append(url)
     tokens = re.findall(r"[A-Za-z0-9+/=_-]{40,}", text)
-    for token in tokens[:200]:
+    for token in tokens[:300]:
         decoded = decode_base64(token)
         if not decoded:
             continue
@@ -153,7 +141,6 @@ def validate_stream(url, page=None, referer=None):
         if cache_key in _validate_cache:
             return _validate_cache[cache_key]
     if token_expired(url):
-        print(f"      [EXPIRED] {url}")
         with _validate_lock:
             _validate_cache[cache_key] = False
         return False
@@ -168,8 +155,7 @@ def validate_stream(url, page=None, referer=None):
             headers["Referer"] = referer
             headers["Origin"] = referer.rstrip("/")
         response = page.request.get(url, timeout=20000, fail_on_status_code=False, headers=headers)
-        status = response.status
-        if status < 400:
+        if response.status < 400:
             try:
                 body = response.text()[:50000]
             except Exception:
@@ -178,10 +164,10 @@ def validate_stream(url, page=None, referer=None):
                 result = True
             else:
                 try:
-                    content_type = response.headers.get("content-type", "").lower()
+                    ct = response.headers.get("content-type", "").lower()
                 except Exception:
-                    content_type = ""
-                if "mpegurl" in content_type or "vnd.apple.mpegurl" in content_type:
+                    ct = ""
+                if "mpegurl" in ct or "vnd.apple.mpegurl" in ct:
                     result = True
     except Exception:
         result = False
@@ -230,90 +216,162 @@ def parse_master_playlist(body, base_url):
     return variants
 
 
-def collect_channels_from_site(page):
-    """Saytdan bütün kanal adlarını və linklərini toplayır."""
-    channels = {}
-    print("")
-    print("[SCAN] Sayt açılır: " + SITE_URL)
-    try:
-        page.goto(SITE_URL, wait_until="domcontentloaded", timeout=60000)
-        page.wait_for_timeout(5000)
-    except PlaywrightTimeoutError:
-        print("[WARN] Sayt timeout oldu.")
-    except Exception as e:
-        print(f"[OPEN ERROR] {str(e)[:250]}")
+def collect_all_links(page):
+    """
+    Saytdan BÜTÜN linkləri toplayır — həm statik, həm dinamik.
+    JavaScript ilə yüklənənləri də götürür.
+    """
+    all_links = {}
 
-    # Kanal linklərini tap
+    # 1. Statik <a> teqləri
     try:
-        links = page.evaluate(
+        static_links = page.evaluate(
             """
             () => {
-                const result = [];
+                const r = [];
                 document.querySelectorAll('a').forEach(a => {
                     const href = a.href || '';
                     const text = (a.innerText || a.textContent || '').trim();
-                    if (href && text && text.length > 1 && text.length < 60) {
-                        result.push({href, text});
-                    }
+                    if (href && text) r.push({href, text});
                 });
-                return result;
+                return r;
             }
             """
         )
-        print(f"[SCAN] {len(links)} link tapıldı")
-        for item in links:
-            href = item.get("href", "")
+        for item in static_links:
+            href = item.get("href", "").strip()
             text = item.get("text", "").strip()
-            if not href or not text:
-                continue
-            # Yalnız kanal səhifələrini götür
-            if "/canlitv/" in href or "/kanal/" in href or "/izle/" in href:
-                if href.startswith("/"):
-                    href = BASE_URL + href
-                if href not in channels:
-                    channels[href] = text
-                    print(f"  [KANAL] {text} -> {href}")
+            if href and text and text not in all_links:
+                all_links[href] = text
     except Exception as e:
-        print(f"[LINK ERROR] {str(e)[:250]}")
+        print(f"  [STATIC LINK ERROR] {str(e)[:150]}")
 
-    # Kanal kartlarını tap (data atributları ilə)
+    # 2. Dinamik elementlər (data-* atributları)
     try:
-        cards = page.evaluate(
+        data_links = page.evaluate(
             """
             () => {
-                const result = [];
-                document.querySelectorAll('[data-channel], [data-id], [data-name], [data-url]').forEach(el => {
-                    result.push({
-                        name: el.getAttribute('data-name') || el.getAttribute('data-channel') || '',
-                        url: el.getAttribute('data-url') || el.getAttribute('data-src') || '',
-                        id: el.getAttribute('data-id') || ''
+                const r = [];
+                document.querySelectorAll('*').forEach(el => {
+                    ['data-url','data-src','data-href','data-link','data-channel','data-stream','data-file','data-id'].forEach(attr => {
+                        const val = el.getAttribute(attr);
+                        if (val && (val.startsWith('http') || val.startsWith('/'))) {
+                            r.push({url: val, name: el.innerText || el.getAttribute('data-name') || ''});
+                        }
                     });
                 });
-                return result;
+                return r;
             }
             """
         )
-        for c in cards:
-            name = c.get("name", "").strip()
-            url = c.get("url", "").strip()
-            if name and url:
-                full = normalize_url(url, BASE_URL)
-                if full:
-                    channels[full] = name
-                    print(f"  [CARD] {name} -> {full}")
+        for item in data_links:
+            url = normalize_url(item.get("url", ""), BASE_URL)
+            name = (item.get("name") or "").strip()
+            if url and name and url not in all_links:
+                all_links[url] = name
     except Exception as e:
-        print(f"[CARD ERROR] {str(e)[:250]}")
+        print(f"  [DATA LINK ERROR] {str(e)[:150]}")
+
+    # 3. JavaScript dəyişənlərində olan linklər
+    try:
+        js_vars = page.evaluate(
+            """
+            () => {
+                const r = [];
+                try {
+                    // window obyektindəki bütün dəyişənləri yoxla
+                    for (let key in window) {
+                        try {
+                            const val = window[key];
+                            if (typeof val === 'string' && val.includes('.m3u8')) {
+                                r.push(val);
+                            }
+                            if (Array.isArray(val) || (typeof val === 'object' && val !== null)) {
+                                const str = JSON.stringify(val);
+                                if (str.includes('m3u8') || str.includes('channel') || str.includes('kanal')) {
+                                    const matches = str.match(/https?:\\/\\/[^"']+\\.(m3u8|json|php)[^"']*/g);
+                                    if (matches) r.push(...matches);
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                } catch(e) {}
+                return r;
+            }
+            """
+        )
+        for url in js_vars:
+            if isinstance(url, str):
+                full = normalize_url(url, BASE_URL)
+                if full and full not in all_links:
+                    all_links[full] = os.path.basename(urlparse(full).path)
+    except Exception as e:
+        print(f"  [JS VAR ERROR] {str(e)[:150]}")
+
+    # 4. Bütün script teqlərindəki linklər
+    try:
+        scripts = page.evaluate(
+            """
+            () => {
+                const r = [];
+                document.querySelectorAll('script').forEach(s => {
+                    const text = s.innerText || s.textContent || '';
+                    const matches = text.match(/https?:\\/\\/[^"'"\\s]+/g);
+                    if (matches) r.push(...matches);
+                });
+                return r;
+            }
+            """
+        )
+        for url in scripts:
+            if ".m3u8" in url.lower() or "/canlitv/" in url or "/kanal/" in url:
+                full = normalize_url(url, BASE_URL)
+                if full and full not in all_links:
+                    all_links[full] = os.path.basename(urlparse(full).path)
+    except Exception as e:
+        print(f"  [SCRIPT ERROR] {str(e)[:150]}")
+
+    return all_links
+
+
+def find_channel_pages(page):
+    """
+    Saytdan kanal səhifələrini tapır.
+    Əgər saytda ayrı kanal səhifələri yoxdursa, əsas səhifəni qaytarır.
+    """
+    channels = {}
+
+    # Bütün linkləri topla
+    all_links = collect_all_links(page)
+    print(f"  [INFO] {len(all_links)} unikal link tapıldı")
+
+    # Kanal səhifələrini filter et
+    channel_patterns = [
+        r"/canlitv/",
+        r"/kanal/",
+        r"/izle/",
+        r"/tv/",
+        r"/live/",
+        r"/channel/",
+        r"\.m3u8",
+    ]
+
+    for url, name in all_links.items():
+        if any(re.search(p, url, re.IGNORECASE) for p in channel_patterns):
+            if url not in channels:
+                channels[url] = name or os.path.basename(urlparse(url).path)
+                print(f"  [KANAL] {name} -> {url}")
+
+    # Əgər heç bir kanal tapılmadısa, əsas səhifəni özünü kanal kimi istifadə et
+    if not channels:
+        print("  [WARN] Kanal səhifəsi tapılmadı, əsas səhifə skan edilir")
+        channels[SITE_URL] = "main_page"
 
     return channels
 
 
-def scan_channel_page(page, channel_url, channel_name):
-    """Bir kanal səhifəsindən m3u8 linklərini toplayır."""
-    print("")
-    print("-" * 70)
-    print(f"[CHANNEL] {channel_name}")
-    print(f"[URL] {channel_url}")
-    print("-" * 70)
+def scan_page_for_m3u8(page, page_url, referer=None):
+    """Bir səhifədən bütün m3u8 linklərini toplayır."""
     candidates = []
     network_urls = []
 
@@ -322,27 +380,27 @@ def scan_channel_page(page, channel_url, channel_name):
             url = response.url
             if ".m3u8" in url.lower() and url not in network_urls:
                 network_urls.append(url)
-                print(f"  [NETWORK] {url}")
+                print(f"    [NETWORK] {url}")
         except Exception:
             pass
 
     page.on("response", capture_response)
 
     try:
-        page.goto(channel_url, wait_until="domcontentloaded", timeout=40000)
+        page.goto(page_url, wait_until="domcontentloaded", timeout=40000)
     except PlaywrightTimeoutError:
-        print("  [WARN] Timeout")
+        print("    [WARN] Timeout")
     except Exception as e:
-        print(f"  [OPEN ERROR] {str(e)[:200]}")
+        print(f"    [OPEN ERROR] {str(e)[:150]}")
 
     # Player-in yüklənməsini gözlə
-    for i in range(6):
+    for i in range(8):
         try:
             page.wait_for_timeout(3000)
         except Exception:
             pass
 
-    # Videoları işə sal
+    # Bütün videoları/iframe-ləri işə sal
     try:
         page.evaluate(
             """
@@ -364,13 +422,12 @@ def scan_channel_page(page, channel_url, channel_name):
     except Exception:
         pass
 
-    # Şəbəkə trafiyindən topla
     candidates.extend(network_urls)
 
-    # HTML-dən topla
+    # HTML-dən
     try:
         html = page.content()
-        for url in extract_m3u8(html, channel_url):
+        for url in extract_m3u8(html, page_url):
             candidates.append(url)
     except Exception:
         pass
@@ -386,13 +443,14 @@ def scan_channel_page(page, channel_url, channel_name):
     except Exception:
         pass
 
-    # Frame-lərdən topla
+    # Bütün frame-lərdən
     try:
         for frame in page.frames:
             try:
                 frame_url = frame.url
                 if not frame_url or frame_url == "about:blank":
                     continue
+                print(f"    [FRAME] {frame_url}")
                 frame_html = frame.content()
                 for url in extract_m3u8(frame_html, frame_url):
                     candidates.append(url)
@@ -410,41 +468,34 @@ def scan_channel_page(page, channel_url, channel_name):
     except Exception:
         pass
 
+    # Script teqlərindən m3u8 axtar
+    try:
+        scripts = page.evaluate(
+            """
+            () => {
+                const r = [];
+                document.querySelectorAll('script').forEach(s => {
+                    const text = s.innerText || s.textContent || '';
+                    if (text.includes('m3u8')) r.push(text);
+                });
+                return r.join('\\n');
+            }
+            """
+        )
+        for url in extract_m3u8(scripts, page_url):
+            candidates.append(url)
+    except Exception:
+        pass
+
     try:
         page.remove_listener("response", capture_response)
     except Exception:
         pass
 
-    candidates = unique_urls(candidates)
-    candidates = [x for x in candidates if not token_expired(x)]
-    candidates.sort(key=lambda u: (
-        1 if "playlist" in u or "master" in u or "index" in u else 0,
-        token_remaining_seconds(u) or 0,
-    ), reverse=True)
-
-    print(f"  [FOUND] {len(candidates)} m3u8 linki")
-    for c in candidates[:10]:
-        rem = token_remaining_seconds(c)
-        rem_txt = f" ({rem}s)" if rem else ""
-        print(f"    - {c}{rem_txt}")
-
-    return candidates
-
-
-def check_and_refresh_stream(url, page, referer=None):
-    """Linki yoxlayır, vaxtı keçibsə None qaytarır."""
-    if not url:
-        return None
-    if token_expired(url):
-        print(f"    [EXPIRED] {url}")
-        return None
-    if validate_stream(url, page, referer=referer):
-        return url
-    return None
+    return unique_urls(candidates)
 
 
 def fetch_master_variants(master_url, page, referer=None):
-    """Master playlist-dən bütün variantları götürür."""
     try:
         headers = {
             "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
@@ -616,29 +667,62 @@ def main():
 
         page = context.new_page()
 
-        # 1. Saytdan kanalları topla
         print("")
-        print("[STEP 2] Saytdan kanallar toplanır...")
-        channels = collect_channels_from_site(page)
+        print("[STEP 2] Sayt açılır və kanallar toplanır...")
+        print(f"[SCAN] {SITE_URL}")
+
+        try:
+            page.goto(SITE_URL, wait_until="networkidle", timeout=60000)
+        except PlaywrightTimeoutError:
+            print("[WARN] Timeout, davam edilir...")
+        except Exception as e:
+            print(f"[OPEN ERROR] {str(e)[:200]}")
+
+        # Səhifənin tam yüklənməsini gözlə
+        page.wait_for_timeout(8000)
+
+        # Aşağı scroll et (lazy-load üçün)
+        try:
+            for _ in range(5):
+                page.evaluate("window.scrollBy(0, window.innerHeight)")
+                page.wait_for_timeout(1500)
+        except Exception:
+            pass
+
+        # Kanalları tap
+        channels = find_channel_pages(page)
         print("")
         print(f"[INFO] Cəmi {len(channels)} kanal tapıldı")
 
-        # 2. Hər kanal üçün m3u8 linklərini topla
+        # Əgər 0 kanal tapıldısa, əsas səhifədən m3u8 axtar
+        if not channels:
+            channels = {SITE_URL: "main"}
+
         print("")
         print("[STEP 3] Hər kanal üçün m3u8 linkləri toplanır...")
         channel_page = context.new_page()
         for channel_url, channel_name in channels.items():
             slug = slugify(channel_name)
+            print("")
+            print("-" * 70)
+            print(f"[CHANNEL] {channel_name}")
+            print(f"[URL] {channel_url}")
+            print("-" * 70)
+
             try:
-                candidates = scan_channel_page(channel_page, channel_url, channel_name)
+                candidates = scan_page_for_m3u8(channel_page, channel_url)
             except Exception as e:
                 print(f"[CHANNEL CRASH] {channel_name}: {str(e)[:200]}")
                 candidates = []
 
+            # Token vaxtı keçmişləri at
+            candidates = [c for c in candidates if not token_expired(c)]
+            print(f"  [FOUND] {len(candidates)} m3u8 linki")
+
             master = None
             variants = []
             for c in candidates:
-                if check_and_refresh_stream(c, channel_page, referer=channel_url):
+                if validate_stream(c, channel_page, referer=channel_url):
                     master = c
                     variants = fetch_master_variants(c, channel_page, referer=channel_url)
                     break
