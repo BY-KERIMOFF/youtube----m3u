@@ -1,7 +1,8 @@
-# tv_channels.py
+# ecanlitv_scanner.py
 import os
 import re
 import time
+import json
 import base64
 import threading
 from urllib.parse import urljoin, urlparse, parse_qs
@@ -9,39 +10,12 @@ from urllib.parse import urljoin, urlparse, parse_qs
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 
-CHANNELS = {
-    "atvavrupa": {"name": "ATV Avrupa", "url": "https://www.atvavrupa.tv/canli-yayin"},
-    "showmax": {"name": "Showmax", "url": "https://www.showmax.com.tr/"},
-    "tv8int": {"name": "TV8 International", "url": "https://www.tv8.com.tr/tv8-international"},
-}
+SITE_URL = "https://www.ecanlitvizle.live/canlitv"
+BASE_URL = "https://www.ecanlitvizle.live"
+OUTPUT_DIR = "tv2"
 
-# Token-siz, referer ile isleyen fallback linkler
-FALLBACK_STREAMS = {
-    "atvavrupa": [
-        # Tulix / BozzTV alternativleri
-        "https://trn03.tulix.tv/gt-atvavrupa/playlist.m3u8",
-        "https://tgn.bozztv.com/trn03/gt-atvavrupa/index.m3u8",
-        "https://trn10.tulix.tv/gt-atvavrupa/playlist.m3u8",
-        "https://tgn.bozztv.com/trn10/gt-atvavrupa/index.m3u8",
-    ],
-    "showmax": [
-        "https://ciner-live.ercdn.net/showmax/playlist.m3u8",
-        "https://ciner-live.ercdn.net/showmax/showmax.m3u8",
-        "https://ciner-live.ercdn.net/showmax/showmax_720p.m3u8",
-    ],
-    "tv8int": [
-        "https://tv8.daioncdn.net/tv8/tv8.m3u8",
-        "https://tv8.daioncdn.net/tv8/tv8_720p.m3u8",
-        "https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8",
-        "https://tv8.daioncdn.net/tv8/tv8_480p.m3u8",
-    ],
-}
-
-REFERERS = {
-    "atvavrupa": "https://www.atvavrupa.tv/",
-    "showmax": "https://www.showmax.com.tr/",
-    "tv8int": "https://www.tv8.com.tr/",
-}
+# Saytdan tapılan kanallar bura yazılacaq
+CHANNELS = {}
 
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) "
@@ -109,7 +83,7 @@ def extract_m3u8(text, base_url):
         if url and url not in found:
             found.append(url)
     tokens = re.findall(r"[A-Za-z0-9+/=_-]{40,}", text)
-    for token in tokens[:100]:
+    for token in tokens[:200]:
         decoded = decode_base64(token)
         if not decoded:
             continue
@@ -132,6 +106,16 @@ def unique_urls(urls):
         seen.add(url)
         result.append(url)
     return result
+
+
+def slugify(text):
+    text = text.lower().strip()
+    text = re.sub(r"[əçğıöşü]", lambda m: {
+        "ə": "e", "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u"
+    }.get(m.group(0), m.group(0)), text)
+    text = re.sub(r"[^a-z0-9]+", "_", text)
+    text = text.strip("_")
+    return text or "channel"
 
 
 def token_expired(url):
@@ -161,94 +145,19 @@ def token_remaining_seconds(url):
         return None
 
 
-def is_master_playlist(url):
-    u = url.lower()
-    if re.search(r"[/_-]\d{3,4}p\.m3u8", u):
-        return False
-    if re.search(r"_hd\.m3u8", u):
-        return False
-    if re.search(r"_sd\.m3u8", u):
-        return False
-    if re.search(r"_\d{3,4}\.m3u8", u):
-        return False
-    if re.search(r"[/_-]playlist\.m3u8", u):
-        return True
-    if re.search(r"[/_-]master\.m3u8", u):
-        return True
-    if re.search(r"[/_-]index\.m3u8", u):
-        return True
-    return False
-
-
-def quality_from_url(url):
-    u = url.lower()
-    m = re.search(r"[/_-](\d{3,4})p\.m3u8", u)
-    if m:
-        return int(m.group(1))
-    if "_hd" in u:
-        return 720
-    if "_sd" in u:
-        return 480
-    if "1080" in u:
-        return 1080
-    if "720" in u:
-        return 720
-    if "576" in u:
-        return 576
-    if "480" in u:
-        return 480
-    if "360" in u:
-        return 360
-    return 0
-
-
-def score_stream(url):
-    u = url.lower()
-    score = 0
-    if ".m3u8" in u:
-        score += 50
-    if is_master_playlist(url):
-        score += 200
-    q = quality_from_url(url)
-    score += q // 10
-    if re.search(r"[/_-]live", u) or "/live/" in u:
-        score += 10
-    if re.search(r"[/_-]stream", u):
-        score += 10
-    if "?st=" in u or "&st=" in u:
-        score += 15
-    if "&e=" in u or "?e=" in u:
-        score += 10
-    if "ercdn.net" in u:
-        score += 20
-    if "daioncdn.net" in u:
-        score += 20
-    remaining = token_remaining_seconds(url)
-    if remaining is not None and remaining > 60:
-        score += 30
-    return score
-
-
-def validate_stream(url, page=None, use_cache=True, referer=None):
+def validate_stream(url, page=None, referer=None):
     if not url:
         return False
     cache_key = url
-    if use_cache:
-        with _validate_lock:
-            if cache_key in _validate_cache:
-                return _validate_cache[cache_key]
+    with _validate_lock:
+        if cache_key in _validate_cache:
+            return _validate_cache[cache_key]
     if token_expired(url):
         print(f"      [EXPIRED] {url}")
-        if use_cache:
-            with _validate_lock:
-                _validate_cache[cache_key] = False
+        with _validate_lock:
+            _validate_cache[cache_key] = False
         return False
-    print("")
-    print(f"      [TEST] {url}")
     if not page:
-        if use_cache:
-            with _validate_lock:
-                _validate_cache[cache_key] = False
         return False
     result = False
     try:
@@ -260,22 +169,12 @@ def validate_stream(url, page=None, use_cache=True, referer=None):
             headers["Origin"] = referer.rstrip("/")
         response = page.request.get(url, timeout=20000, fail_on_status_code=False, headers=headers)
         status = response.status
-        print(f"      [HTTP] {status}")
-        if status >= 400:
-            print(f"      [X] HTTP {status}")
-            result = False
-        else:
+        if status < 400:
             try:
-                body = response.text()
-            except Exception as e:
-                print(f"      [TEXT ERROR] {str(e)[:200]}")
+                body = response.text()[:50000]
+            except Exception:
                 body = ""
-            body = body[:50000]
-            if "#EXTM3U" in body:
-                print("      [OK] #EXTM3U tapildi")
-                result = True
-            elif "#EXT-X-" in body:
-                print("      [OK] HLS playlist tapildi")
+            if "#EXTM3U" in body or "#EXT-X-" in body:
                 result = True
             else:
                 try:
@@ -283,17 +182,11 @@ def validate_stream(url, page=None, use_cache=True, referer=None):
                 except Exception:
                     content_type = ""
                 if "mpegurl" in content_type or "vnd.apple.mpegurl" in content_type:
-                    print("      [OK] HLS content-type")
                     result = True
-                else:
-                    print("      [X] HLS playlist tesdiqlenmedi")
-                    result = False
-    except Exception as e:
-        print(f"      [ERR] {str(e)[:250]}")
+    except Exception:
         result = False
-    if use_cache:
-        with _validate_lock:
-            _validate_cache[cache_key] = result
+    with _validate_lock:
+        _validate_cache[cache_key] = result
     return result
 
 
@@ -332,230 +225,157 @@ def parse_master_playlist(body, base_url):
                     "bandwidth": bandwidth,
                     "resolution": resolution,
                     "resolution_score": resolution_score,
-                    "quality": quality_from_url(variant_url) or (resolution_score // 1000 if resolution_score else 0),
                 })
             break
     return variants
 
 
-def fetch_master_playlist(url, page, referer=None):
-    if not url:
-        return None
-    if token_expired(url):
-        print("      [MASTER] Token vaxti bitib")
-        return None
-    try:
-        headers = {
-            "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
-        }
-        if referer:
-            headers["Referer"] = referer
-            headers["Origin"] = referer.rstrip("/")
-        response = page.request.get(url, timeout=20000, fail_on_status_code=False, headers=headers)
-        if response.status >= 400:
-            return None
-        body = response.text()
-        if "#EXTM3U" not in body:
-            return None
-        return body
-    except Exception as e:
-        print(f"      [MASTER ERROR] {str(e)[:200]}")
-        return None
-
-
-def collect_all_variants(master_url, page, referer=None):
+def collect_channels_from_site(page):
+    """Saytdan bütün kanal adlarını və linklərini toplayır."""
+    channels = {}
     print("")
-    print(f"      [MASTER] {master_url}")
-    body = fetch_master_playlist(master_url, page, referer=referer)
-    if not body:
-        print("      [MASTER] Alinmadi")
-        return []
-    variants = parse_master_playlist(body, master_url)
-    if not variants:
-        print("      [MASTER] Variant yoxdur (bu artiq media playlist-dir)")
-        return []
-    print(f"      [MASTER] {len(variants)} variant tapildi")
-    valid = []
-    for v in variants:
-        if token_expired(v["url"]):
-            print(f"      [VARIANT] [EXPIRED] {v['url']}")
-            continue
-        print(f"      [VARIANT] {v['resolution'] or v['quality']}p - {v['url']}")
-        if validate_stream(v["url"], page, referer=referer):
-            v["valid"] = True
-            valid.append(v)
-            print(f"      [VARIANT] [OK] {v['resolution'] or v['quality']}p")
-        else:
-            print(f"      [VARIANT] [X] {v['resolution'] or v['quality']}p islemir")
-    valid.sort(key=lambda x: (x["resolution_score"], x["bandwidth"]), reverse=True)
-    return valid
-
-
-def scan_page(page, page_url):
-    found = []
-    def add(url, source):
-        url = normalize_url(url, page_url)
-        if not url:
-            return
-        if ".m3u8" not in url.lower():
-            return
-        if url not in found:
-            found.append(url)
-            print(f"      [M3U8] {source}: {url}")
+    print("[SCAN] Sayt açılır: " + SITE_URL)
     try:
-        performance_urls = page.evaluate(
-            "() => performance.getEntriesByType('resource').map(x => x.name)"
+        page.goto(SITE_URL, wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_timeout(5000)
+    except PlaywrightTimeoutError:
+        print("[WARN] Sayt timeout oldu.")
+    except Exception as e:
+        print(f"[OPEN ERROR] {str(e)[:250]}")
+
+    # Kanal linklərini tap
+    try:
+        links = page.evaluate(
+            """
+            () => {
+                const result = [];
+                document.querySelectorAll('a').forEach(a => {
+                    const href = a.href || '';
+                    const text = (a.innerText || a.textContent || '').trim();
+                    if (href && text && text.length > 1 && text.length < 60) {
+                        result.push({href, text});
+                    }
+                });
+                return result;
+            }
+            """
         )
-        for url in performance_urls:
-            if ".m3u8" in url.lower():
-                add(url, "PERFORMANCE")
-    except Exception as e:
-        print(f"      [PERFORMANCE ERROR] {str(e)[:150]}")
-    try:
-        html = page.content()
-        for url in extract_m3u8(html, page_url):
-            add(url, "HTML")
-    except Exception as e:
-        print(f"      [HTML ERROR] {str(e)[:150]}")
-    try:
-        frames = page.frames
-        print(f"      [INFO] Frame sayi: {len(frames)}")
-        for frame in frames:
-            try:
-                frame_url = frame.url
-                if not frame_url or frame_url == "about:blank":
-                    continue
-                print(f"      [FRAME] {frame_url}")
-                frame_html = frame.content()
-                for url in extract_m3u8(frame_html, frame_url):
-                    add(url, "IFRAME")
-                try:
-                    entries = frame.evaluate(
-                        "() => performance.getEntriesByType('resource').map(x => x.name)"
-                    )
-                    for url in entries:
-                        if ".m3u8" in url.lower():
-                            add(url, "FRAME-PERFORMANCE")
-                except Exception as e:
-                    print(f"      [FRAME-EVAL ERROR] {str(e)[:120]}")
-            except Exception as e:
-                print(f"      [FRAME SKIP] {str(e)[:120]}")
+        print(f"[SCAN] {len(links)} link tapıldı")
+        for item in links:
+            href = item.get("href", "")
+            text = item.get("text", "").strip()
+            if not href or not text:
                 continue
+            # Yalnız kanal səhifələrini götür
+            if "/canlitv/" in href or "/kanal/" in href or "/izle/" in href:
+                if href.startswith("/"):
+                    href = BASE_URL + href
+                if href not in channels:
+                    channels[href] = text
+                    print(f"  [KANAL] {text} -> {href}")
     except Exception as e:
-        print(f"      [FRAME ERROR] {str(e)[:150]}")
-    return unique_urls(found)
+        print(f"[LINK ERROR] {str(e)[:250]}")
 
-
-def pick_best_master(candidates, page, referer=None):
-    if not candidates:
-        return None
-    masters = [u for u in candidates if is_master_playlist(u)]
-    others = [u for u in candidates if not is_master_playlist(u)]
-    def sort_key(u):
-        rem = token_remaining_seconds(u)
-        if rem is None:
-            return (0, 0)
-        return (1, rem)
-    masters.sort(key=sort_key, reverse=True)
-    others.sort(key=sort_key, reverse=True)
-    for candidate in masters + others:
-        print("")
-        print(f"      [CHECK] {candidate}")
-        if validate_stream(candidate, page, referer=referer):
-            print("")
-            print("      [SUCCESS]")
-            print(f"      {candidate}")
-            return candidate
-    return None
-
-
-def build_quality_playlist(channel_id, channel, variants, master_url):
-    lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
-    for v in variants:
-        bw = v.get("bandwidth") or 0
-        res = v.get("resolution") or ""
-        if not res:
-            q = v.get("quality") or 0
-            if q >= 720:
-                res = "1280x720"
-            elif q >= 576:
-                res = "1024x576"
-            elif q >= 480:
-                res = "854x480"
-            elif q >= 360:
-                res = "640x360"
-            else:
-                res = "640x360"
-        if bw <= 0:
-            bw = 1000000
-        lines.append(
-            f'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={bw},CODECS="",RESOLUTION={res}'
+    # Kanal kartlarını tap (data atributları ilə)
+    try:
+        cards = page.evaluate(
+            """
+            () => {
+                const result = [];
+                document.querySelectorAll('[data-channel], [data-id], [data-name], [data-url]').forEach(el => {
+                    result.push({
+                        name: el.getAttribute('data-name') || el.getAttribute('data-channel') || '',
+                        url: el.getAttribute('data-url') || el.getAttribute('data-src') || '',
+                        id: el.getAttribute('data-id') || ''
+                    });
+                });
+                return result;
+            }
+            """
         )
-        lines.append(v["url"])
-    return "\n".join(lines) + "\n"
+        for c in cards:
+            name = c.get("name", "").strip()
+            url = c.get("url", "").strip()
+            if name and url:
+                full = normalize_url(url, BASE_URL)
+                if full:
+                    channels[full] = name
+                    print(f"  [CARD] {name} -> {full}")
+    except Exception as e:
+        print(f"[CARD ERROR] {str(e)[:250]}")
+
+    return channels
 
 
-def browser_find_stream(page, channel_id, channel):
-    name = channel["name"]
-    page_url = channel["url"]
-    referer = REFERERS.get(channel_id, page_url)
+def scan_channel_page(page, channel_url, channel_name):
+    """Bir kanal səhifəsindən m3u8 linklərini toplayır."""
     print("")
-    print("=" * 70)
-    print(f"[BROWSER] {name}")
-    print(f"[URL] {page_url}")
-    print("=" * 70)
+    print("-" * 70)
+    print(f"[CHANNEL] {channel_name}")
+    print(f"[URL] {channel_url}")
+    print("-" * 70)
     candidates = []
     network_urls = []
+
     def capture_response(response):
         try:
             url = response.url
             if ".m3u8" in url.lower() and url not in network_urls:
                 network_urls.append(url)
-                print(f"      [NETWORK] {url}")
+                print(f"  [NETWORK] {url}")
         except Exception:
             pass
+
     page.on("response", capture_response)
+
     try:
-        print("      [OPEN] Sayt acilir...")
-        page.goto(page_url, wait_until="domcontentloaded", timeout=40000)
-        try:
-            print(f"      [TITLE] {page.title()}")
-        except Exception:
-            pass
+        page.goto(channel_url, wait_until="domcontentloaded", timeout=40000)
     except PlaywrightTimeoutError:
-        print("      [WARN] Sayt timeout oldu.")
+        print("  [WARN] Timeout")
     except Exception as e:
-        print(f"      [OPEN ERROR] {str(e)[:250]}")
-    print("      [WAIT] Player gozlenilir...")
-    for i in range(10):
+        print(f"  [OPEN ERROR] {str(e)[:200]}")
+
+    # Player-in yüklənməsini gözlə
+    for i in range(6):
         try:
-            page.wait_for_timeout(4000)
+            page.wait_for_timeout(3000)
         except Exception:
             pass
-        print(f"      [WAIT] {(i + 1) * 4} saniye...")
+
+    # Videoları işə sal
     try:
         page.evaluate(
             """
             () => {
-                document.querySelectorAll('video').forEach(v => {
+                document.querySelectorAll('video, iframe').forEach(v => {
                     try {
-                        v.muted = true;
-                        v.autoplay = true;
-                        const p = v.play();
-                        if (p) p.catch(() => {});
+                        if (v.tagName === 'VIDEO') {
+                            v.muted = true;
+                            v.autoplay = true;
+                            const p = v.play();
+                            if (p) p.catch(() => {});
+                        }
                     } catch(e) {}
                 });
             }
             """
         )
-        page.wait_for_timeout(4000)
+        page.wait_for_timeout(3000)
     except Exception:
         pass
+
+    # Şəbəkə trafiyindən topla
     candidates.extend(network_urls)
+
+    # HTML-dən topla
     try:
-        candidates.extend(scan_page(page, page_url))
-    except Exception as e:
-        print(f"      [SCAN ERROR] {str(e)[:200]}")
+        html = page.content()
+        for url in extract_m3u8(html, channel_url):
+            candidates.append(url)
+    except Exception:
+        pass
+
+    # Performance entries
     try:
         entries = page.evaluate(
             "() => performance.getEntriesByType('resource').map(x => x.name)"
@@ -565,106 +385,111 @@ def browser_find_stream(page, channel_id, channel):
                 candidates.append(url)
     except Exception:
         pass
-    candidates = unique_urls(candidates)
-    candidates = [x for x in candidates if not token_expired(x)]
-    candidates.sort(key=score_stream, reverse=True)
-    print("")
-    print(f"      [FOUND] {len(candidates)} aktual URL")
-    best_master = pick_best_master(candidates, page, referer=referer)
+
+    # Frame-lərdən topla
+    try:
+        for frame in page.frames:
+            try:
+                frame_url = frame.url
+                if not frame_url or frame_url == "about:blank":
+                    continue
+                frame_html = frame.content()
+                for url in extract_m3u8(frame_html, frame_url):
+                    candidates.append(url)
+                try:
+                    entries = frame.evaluate(
+                        "() => performance.getEntriesByType('resource').map(x => x.name)"
+                    )
+                    for url in entries:
+                        if ".m3u8" in url.lower():
+                            candidates.append(url)
+                except Exception:
+                    pass
+            except Exception:
+                continue
+    except Exception:
+        pass
+
     try:
         page.remove_listener("response", capture_response)
     except Exception:
         pass
-    if not best_master:
-        return None, []
-    variants = collect_all_variants(best_master, page, referer=referer)
-    if not variants:
-        return best_master, []
-    return best_master, variants
+
+    candidates = unique_urls(candidates)
+    candidates = [x for x in candidates if not token_expired(x)]
+    candidates.sort(key=lambda u: (
+        1 if "playlist" in u or "master" in u or "index" in u else 0,
+        token_remaining_seconds(u) or 0,
+    ), reverse=True)
+
+    print(f"  [FOUND] {len(candidates)} m3u8 linki")
+    for c in candidates[:10]:
+        rem = token_remaining_seconds(c)
+        rem_txt = f" ({rem}s)" if rem else ""
+        print(f"    - {c}{rem_txt}")
+
+    return candidates
 
 
-def fallback_find(request_context, channel_id, referer=None):
-    urls = FALLBACK_STREAMS.get(channel_id, [])
-    if not urls:
-        return None, []
-    print("")
-    print(f"[FALLBACK] {channel_id}")
-    print("-" * 70)
-    def sort_key(u):
-        rem = token_remaining_seconds(u)
-        if rem is None:
-            return (0, 0)
-        return (1, rem)
-    sorted_urls = sorted(urls, key=sort_key, reverse=True)
-    for url in sorted_urls:
-        if token_expired(url):
-            print(f"   [EXPIRED] {url}")
-            continue
-        print(f"   [TRY] {url}")
-        try:
-            headers = {
-                "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
-            }
-            if referer:
-                headers["Referer"] = referer
-                headers["Origin"] = referer.rstrip("/")
-            response = request_context.get(
-                url, timeout=20000, fail_on_status_code=False, headers=headers
-            )
-            print(f"   [STATUS] {response.status}")
-            if response.status >= 400:
-                continue
+def check_and_refresh_stream(url, page, referer=None):
+    """Linki yoxlayır, vaxtı keçibsə None qaytarır."""
+    if not url:
+        return None
+    if token_expired(url):
+        print(f"    [EXPIRED] {url}")
+        return None
+    if validate_stream(url, page, referer=referer):
+        return url
+    return None
+
+
+def fetch_master_variants(master_url, page, referer=None):
+    """Master playlist-dən bütün variantları götürür."""
+    try:
+        headers = {
+            "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
+        }
+        if referer:
+            headers["Referer"] = referer
+            headers["Origin"] = referer.rstrip("/")
+        response = page.request.get(master_url, timeout=20000, fail_on_status_code=False, headers=headers)
+        if response.status >= 400:
+            return []
+        body = response.text()
+        return parse_master_playlist(body, master_url)
+    except Exception:
+        return []
+
+
+def build_quality_playlist(variants):
+    lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
+    for v in variants:
+        bw = v.get("bandwidth") or 1000000
+        res = v.get("resolution") or "640x360"
+        lines.append(
+            f'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={bw},CODECS="",RESOLUTION={res}'
+        )
+        lines.append(v["url"])
+    return "\n".join(lines) + "\n"
+
+
+def prepare_output():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    for f in os.listdir(OUTPUT_DIR):
+        if f.endswith(".m3u") or f.endswith(".m3u8") or f.endswith(".error.txt") or f in ("links.txt", "github_links.txt", "channels.json"):
             try:
-                body = response.text()
-            except Exception:
-                body = ""
-            if "#EXTM3U" in body or "#EXT-X-" in body:
-                print("   [OK] Fallback isleyir")
-                variants = parse_master_playlist(body, url)
-                valid = []
-                for v in variants:
-                    try:
-                        r = request_context.get(
-                            v["url"], timeout=15000, fail_on_status_code=False, headers=headers
-                        )
-                        if r.status < 400:
-                            v["valid"] = True
-                            valid.append(v)
-                    except Exception:
-                        pass
-                if valid:
-                    valid.sort(key=lambda x: (x["resolution_score"], x["bandwidth"]), reverse=True)
-                return url, valid
-            try:
-                content_type = response.headers.get("content-type", "").lower()
-            except Exception:
-                content_type = ""
-            if "mpegurl" in content_type or "vnd.apple.mpegurl" in content_type:
-                print("   [OK] HLS Content-Type")
-                return url, []
-        except Exception as e:
-            print(f"   [ERROR] {str(e)[:200]}")
-    return None, []
-
-
-def prepare_folders():
-    os.makedirs("tv2", exist_ok=True)
-    for f in os.listdir("tv2"):
-        if f.endswith(".m3u") or f.endswith(".m3u8") or f.endswith(".error.txt") or f in ("links.txt", "github_links.txt"):
-            try:
-                os.remove(os.path.join("tv2", f))
+                os.remove(os.path.join(OUTPUT_DIR, f))
             except Exception:
                 pass
-    print("[CLEAN] tv2/ kohne fayllar silindi")
-    os.makedirs("tv2", exist_ok=True)
+    print(f"[CLEAN] {OUTPUT_DIR}/ təmizləndi")
 
 
-def write_m3u(channel_id, channel, stream_url):
-    path = os.path.join("tv2", f"{channel_id}.m3u")
+def write_m3u(slug, name, stream_url):
+    path = os.path.join(OUTPUT_DIR, f"{slug}.m3u")
     content = (
         "#EXTM3U\n"
-        f'#EXTINF:-1 tvg-id="{channel_id}" tvg-name="{channel["name"]}" '
-        f'group-title="Turkiye",{channel["name"]}\n'
+        f'#EXTINF:-1 tvg-id="{slug}" tvg-name="{name}" '
+        f'group-title="Turkiye",{name}\n'
         f"{stream_url}\n"
     )
     with open(path, "w", encoding="utf-8") as f:
@@ -672,105 +497,95 @@ def write_m3u(channel_id, channel, stream_url):
     print(f"[WRITE] {path}")
 
 
-def write_quality_playlist(channel_id, channel, variants):
+def write_quality_playlist(slug, variants):
     if not variants:
         return None
-    path = os.path.join("tv2", f"{channel_id}_all.m3u8")
-    content = build_quality_playlist(channel_id, channel, variants, None)
+    path = os.path.join(OUTPUT_DIR, f"{slug}_all.m3u8")
+    content = build_quality_playlist(variants)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"[WRITE] {path}")
     return path
 
 
-def write_error(channel_id, channel):
-    path = os.path.join("tv2", f"{channel_id}.error.txt")
+def write_all_m3u(results):
+    all_path = os.path.join(OUTPUT_DIR, "all.m3u")
+    lines = ["#EXTM3U"]
+    for slug, data in results.items():
+        name = data.get("name", slug)
+        master = data.get("master")
+        if not master:
+            continue
+        lines.append(
+            f'#EXTINF:-1 tvg-id="{slug}" tvg-name="{name}" '
+            f'group-title="Turkiye",{name}'
+        )
+        lines.append(master)
+    with open(all_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    print(f"[WRITE] {all_path}")
+
+    links_path = os.path.join(OUTPUT_DIR, "links.txt")
+    with open(links_path, "w", encoding="utf-8") as f:
+        for slug, data in results.items():
+            master = data.get("master")
+            if not master:
+                continue
+            f.write(f"# {data.get('name', slug)}\n{master}\n\n")
+    print(f"[WRITE] {links_path}")
+
+    repo = os.environ.get("GITHUB_REPOSITORY", "USERNAME/REPO")
+    base = f"https://raw.githubusercontent.com/{repo}/main/{OUTPUT_DIR}"
+    github_links_path = os.path.join(OUTPUT_DIR, "github_links.txt")
+    with open(github_links_path, "w", encoding="utf-8") as f:
+        f.write("# BUTUN KANALLAR (TEK playlist)\n")
+        f.write(f"{base}/all.m3u\n\n")
+        f.write("# AYRI-AYRI KANALLAR\n")
+        for slug, data in results.items():
+            master = data.get("master")
+            if not master:
+                continue
+            f.write(f"# {data.get('name', slug)}\n{base}/{slug}.m3u\n")
+            if data.get("variants"):
+                f.write(f"# {data.get('name', slug)} - BUTUN KEYFIYYETLER\n{base}/{slug}_all.m3u8\n\n")
+            else:
+                f.write("\n")
+    print(f"[WRITE] {github_links_path}")
+
+    json_path = os.path.join(OUTPUT_DIR, "channels.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    print(f"[WRITE] {json_path}")
+
+
+def write_error(slug, name, url):
+    path = os.path.join(OUTPUT_DIR, f"{slug}.error.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write(
-            f"Kanal: {channel['name']}\n"
-            f"URL: {channel['url']}\n"
+            f"Kanal: {name}\n"
+            f"URL: {url}\n"
             f"Status: M3U8 tapilmadi\n"
             f"Vaxt: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}\n"
         )
     print(f"[ERROR FILE] {path}")
 
 
-def write_all_m3u(results):
-    for cid, ch in CHANNELS.items():
-        data = results.get(cid)
-        if not data:
-            continue
-        master = data.get("master")
-        variants = data.get("variants") or []
-        if master:
-            write_m3u(cid, ch, master)
-        if variants:
-            write_quality_playlist(cid, ch, variants)
-    all_path = os.path.join("tv2", "all.m3u")
-    lines = ["#EXTM3U"]
-    for cid, ch in CHANNELS.items():
-        data = results.get(cid)
-        if not data:
-            continue
-        master = data.get("master")
-        if not master:
-            continue
-        lines.append(
-            f'#EXTINF:-1 tvg-id="{cid}" tvg-name="{ch["name"]}" '
-            f'group-title="Turkiye",{ch["name"]}'
-        )
-        lines.append(master)
-    with open(all_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
-    print(f"[WRITE] {all_path}")
-    links_path = os.path.join("tv2", "links.txt")
-    with open(links_path, "w", encoding="utf-8") as f:
-        for cid, ch in CHANNELS.items():
-            data = results.get(cid)
-            if not data:
-                continue
-            master = data.get("master")
-            if not master:
-                continue
-            f.write(f"# {ch['name']}\n{master}\n\n")
-    print(f"[WRITE] {links_path}")
-    repo = os.environ.get("GITHUB_REPOSITORY", "USERNAME/REPO")
-    base = f"https://raw.githubusercontent.com/{repo}/main/tv2"
-    github_links_path = os.path.join("tv2", "github_links.txt")
-    with open(github_links_path, "w", encoding="utf-8") as f:
-        f.write("# BUTUN KANALLAR (TEK playlist)\n")
-        f.write(f"{base}/all.m3u\n\n")
-        f.write("# AYRI-AYRI KANALLAR\n")
-        for cid, ch in CHANNELS.items():
-            data = results.get(cid)
-            if not data:
-                continue
-            master = data.get("master")
-            if not master:
-                continue
-            f.write(f"# {ch['name']}\n{base}/{cid}.m3u\n")
-            if data.get("variants"):
-                f.write(f"# {ch['name']} - BUTUN KEYFIYYETLER\n{base}/{cid}_all.m3u8\n\n")
-            else:
-                f.write("\n")
-    print(f"[WRITE] {github_links_path}")
-
-
 def main():
     print("")
     print("=" * 70)
-    print("TURK TV LIVE M3U AUTO SCANNER")
+    print("ECANLITVIZLE.LIVE SCANNER")
     print("Playwright + Chromium + Full Quality Variants")
     print("=" * 70)
+
     print("")
-    print("[STEP 1] Kohne fayllar silinir...")
-    prepare_folders()
+    print("[STEP 1] Çıxış qovluğu hazırlanır...")
+    prepare_output()
     _validate_cache.clear()
+
+    results = {}
     success = 0
     failed = 0
-    results = {}
-    print("")
-    print("[STEP 2] Kanallar scan edilir...")
+
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
@@ -798,89 +613,81 @@ def main():
         context.add_init_script(
             "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});"
         )
-        request_context = p.request.new_context(
-            ignore_https_errors=True,
-            extra_http_headers={
-                "User-Agent": USER_AGENT,
-                "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
-                "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
-            },
-        )
-        try:
-            for cid, ch in CHANNELS.items():
-                referer = REFERERS.get(cid, ch["url"])
-                page = context.new_page()
-                master = None
-                variants = []
-                try:
-                    master, variants = browser_find_stream(page, cid, ch)
-                except Exception as e:
-                    print(f"[BROWSER CRASH] {ch['name']}: {str(e)[:200]}")
-                    master, variants = None, []
-                finally:
-                    try:
-                        page.close()
-                    except Exception:
-                        pass
-                if not master:
-                    print("")
-                    print(f"[BROWSER X] {ch['name']} tapilmadi")
-                    try:
-                        request_context.dispose()
-                    except Exception:
-                        pass
-                    request_context = p.request.new_context(
-                        ignore_https_errors=True,
-                        extra_http_headers={
-                            "User-Agent": USER_AGENT,
-                            "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
-                            "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
-                            "Referer": referer,
-                            "Origin": referer.rstrip("/"),
-                        },
-                    )
-                    try:
-                        master, variants = fallback_find(request_context, cid, referer=referer)
-                    except Exception as e:
-                        print(f"[FALLBACK CRASH] {ch['name']}: {str(e)[:200]}")
-                        master, variants = None, []
-                results[cid] = {"master": master, "variants": variants}
-        finally:
-            try:
-                request_context.dispose()
-            except Exception:
-                pass
-            try:
-                context.close()
-            except Exception:
-                pass
-            try:
-                browser.close()
-            except Exception:
-                pass
-    print("")
-    print("[STEP 3] Neticeler yazilir...")
-    write_all_m3u(results)
-    for cid, ch in CHANNELS.items():
-        data = results.get(cid)
-        master = data.get("master") if data else None
-        variants = data.get("variants") if data else []
-        if master:
-            success += 1
-            q_count = len(variants)
-            print(f"[OK] {ch['name']} ({q_count} keyfiyyet)")
-        else:
-            write_error(cid, ch)
-            failed += 1
-            print(f"[FAILED] {ch['name']}")
+
+        page = context.new_page()
+
+        # 1. Saytdan kanalları topla
         print("")
+        print("[STEP 2] Saytdan kanallar toplanır...")
+        channels = collect_channels_from_site(page)
+        print("")
+        print(f"[INFO] Cəmi {len(channels)} kanal tapıldı")
+
+        # 2. Hər kanal üçün m3u8 linklərini topla
+        print("")
+        print("[STEP 3] Hər kanal üçün m3u8 linkləri toplanır...")
+        channel_page = context.new_page()
+        for channel_url, channel_name in channels.items():
+            slug = slugify(channel_name)
+            try:
+                candidates = scan_channel_page(channel_page, channel_url, channel_name)
+            except Exception as e:
+                print(f"[CHANNEL CRASH] {channel_name}: {str(e)[:200]}")
+                candidates = []
+
+            master = None
+            variants = []
+            for c in candidates:
+                if check_and_refresh_stream(c, channel_page, referer=channel_url):
+                    master = c
+                    variants = fetch_master_variants(c, channel_page, referer=channel_url)
+                    break
+
+            if master:
+                results[slug] = {
+                    "name": channel_name,
+                    "url": channel_url,
+                    "master": master,
+                    "variants": variants,
+                }
+                write_m3u(slug, channel_name, master)
+                if variants:
+                    write_quality_playlist(slug, variants)
+                success += 1
+                print(f"  [OK] {channel_name} ({len(variants)} keyfiyyət)")
+            else:
+                write_error(slug, channel_name, channel_url)
+                failed += 1
+                print(f"  [FAILED] {channel_name}")
+
+        try:
+            channel_page.close()
+        except Exception:
+            pass
+        try:
+            page.close()
+        except Exception:
+            pass
+        try:
+            context.close()
+        except Exception:
+            pass
+        try:
+            browser.close()
+        except Exception:
+            pass
+
+    print("")
+    print("[STEP 4] Nəticələr yazılır...")
+    write_all_m3u(results)
+
     print("")
     print("=" * 70)
-    print("NETICE")
+    print("NƏTİCƏ")
     print("=" * 70)
-    print(f"[OK] Ugurlu: {success}")
-    print(f"[X] Tapilmadi: {failed}")
-    print(f"[TOTAL] {len(CHANNELS)}")
+    print(f"[OK] Uğurlu: {success}")
+    print(f"[X] Tapılmadı: {failed}")
+    print(f"[TOTAL] {len(results) + failed}")
     print("=" * 70)
 
 
