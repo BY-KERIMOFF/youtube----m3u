@@ -31,6 +31,3 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/teve2.
 # Star TV
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/startv.m3u
 
-# Eurostar TV
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/eurostar.m3u
-
