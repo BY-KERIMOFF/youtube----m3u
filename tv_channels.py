@@ -15,16 +15,19 @@ CHANNELS = {
     "tv8int": {"name": "TV8 International", "url": "https://www.tv8.com.tr/tv8-international"},
 }
 
+# Token-siz, referer ile isleyen fallback linkler
 FALLBACK_STREAMS = {
     "atvavrupa": [
-        "https://trkvz-live.ercdn.net/atvavrupa/atvavrupa.m3u8",
-        "https://trkvz-live.ercdn.net/atvavrupa/atvavrupa_576p.m3u8",
+        # Tulix / BozzTV alternativleri
         "https://trn03.tulix.tv/gt-atvavrupa/playlist.m3u8",
         "https://tgn.bozztv.com/trn03/gt-atvavrupa/index.m3u8",
+        "https://trn10.tulix.tv/gt-atvavrupa/playlist.m3u8",
+        "https://tgn.bozztv.com/trn10/gt-atvavrupa/index.m3u8",
     ],
     "showmax": [
         "https://ciner-live.ercdn.net/showmax/playlist.m3u8",
         "https://ciner-live.ercdn.net/showmax/showmax.m3u8",
+        "https://ciner-live.ercdn.net/showmax/showmax_720p.m3u8",
     ],
     "tv8int": [
         "https://tv8.daioncdn.net/tv8/tv8.m3u8",
@@ -580,7 +583,7 @@ def browser_find_stream(page, channel_id, channel):
     return best_master, variants
 
 
-def fallback_find(request_context, channel_id):
+def fallback_find(request_context, channel_id, referer=None):
     urls = FALLBACK_STREAMS.get(channel_id, [])
     if not urls:
         return None, []
@@ -599,7 +602,15 @@ def fallback_find(request_context, channel_id):
             continue
         print(f"   [TRY] {url}")
         try:
-            response = request_context.get(url, timeout=20000, fail_on_status_code=False)
+            headers = {
+                "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,application/octet-stream,*/*",
+            }
+            if referer:
+                headers["Referer"] = referer
+                headers["Origin"] = referer.rstrip("/")
+            response = request_context.get(
+                url, timeout=20000, fail_on_status_code=False, headers=headers
+            )
             print(f"   [STATUS] {response.status}")
             if response.status >= 400:
                 continue
@@ -613,7 +624,9 @@ def fallback_find(request_context, channel_id):
                 valid = []
                 for v in variants:
                     try:
-                        r = request_context.get(v["url"], timeout=15000, fail_on_status_code=False)
+                        r = request_context.get(
+                            v["url"], timeout=15000, fail_on_status_code=False, headers=headers
+                        )
                         if r.status < 400:
                             v["valid"] = True
                             valid.append(v)
@@ -827,7 +840,7 @@ def main():
                         },
                     )
                     try:
-                        master, variants = fallback_find(request_context, cid)
+                        master, variants = fallback_find(request_context, cid, referer=referer)
                     except Exception as e:
                         print(f"[FALLBACK CRASH] {ch['name']}: {str(e)[:200]}")
                         master, variants = None, []
