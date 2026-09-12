@@ -2,6 +2,3 @@
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/tv2/all.m3u
 
 # AYRI-AYRI KANALLAR
-# ATV Avrupa
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/tv2/atvavrupa.m3u
-
