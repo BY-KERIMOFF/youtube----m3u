@@ -4,8 +4,6 @@ import re
 import time
 import base64
 import threading
-import shutil
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin, urlparse, parse_qs
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
@@ -19,14 +17,20 @@ CHANNELS = {
 
 FALLBACK_STREAMS = {
     "atvavrupa": [
+        "https://trkvz-live.ercdn.net/atvavrupa/atvavrupa.m3u8",
+        "https://trkvz-live.ercdn.net/atvavrupa/atvavrupa_576p.m3u8",
         "https://trn03.tulix.tv/gt-atvavrupa/playlist.m3u8",
         "https://tgn.bozztv.com/trn03/gt-atvavrupa/index.m3u8",
     ],
-    "showmax": ["https://ciner-live.ercdn.net/showmax/playlist.m3u8"],
+    "showmax": [
+        "https://ciner-live.ercdn.net/showmax/playlist.m3u8",
+        "https://ciner-live.ercdn.net/showmax/showmax.m3u8",
+    ],
     "tv8int": [
         "https://tv8.daioncdn.net/tv8/tv8.m3u8",
         "https://tv8.daioncdn.net/tv8/tv8_720p.m3u8",
         "https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8",
+        "https://tv8.daioncdn.net/tv8/tv8_480p.m3u8",
     ],
 }
 
