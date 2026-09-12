@@ -213,6 +213,28 @@ def is_master_playlist(url):
     return False
 
 
+def quality_from_url(url):
+    u = url.lower()
+    m = re.search(r"[/_-](\d{3,4})p\.m3u8", u)
+    if m:
+        return int(m.group(1))
+    if "_hd" in u:
+        return 720
+    if "_sd" in u:
+        return 480
+    if "1080" in u:
+        return 1080
+    if "720" in u:
+        return 720
+    if "576" in u:
+        return 576
+    if "480" in u:
+        return 480
+    if "360" in u:
+        return 360
+    return 0
+
+
 def score_stream(url):
     u = url.lower()
     score = 0
@@ -220,12 +242,8 @@ def score_stream(url):
         score += 50
     if is_master_playlist(url):
         score += 200
-    if re.search(r"[/_-]\d{3,4}p\.m3u8", u):
-        score -= 200
-    if re.search(r"_hd\.m3u8", u):
-        score -= 150
-    if re.search(r"_sd\.m3u8", u):
-        score -= 150
+    q = quality_from_url(url)
+    score += q // 10
     if re.search(r"[/_-]live", u) or "/live/" in u:
         score += 10
     if re.search(r"[/_-]stream", u):
@@ -312,7 +330,48 @@ def validate_stream(url, page=None, use_cache=True, referer=None):
     return result
 
 
-def resolve_master_playlist(url, page, referer=None):
+def parse_master_playlist(body, base_url):
+    if not body or "#EXTM3U" not in body:
+        return []
+    if "#EXT-X-STREAM-INF" not in body:
+        return []
+    variants = []
+    lines = body.splitlines()
+    for i, line in enumerate(lines):
+        line = line.strip()
+        if not line.startswith("#EXT-X-STREAM-INF"):
+            continue
+        info = line.upper()
+        bandwidth = 0
+        resolution = None
+        resolution_score = 0
+        bw_match = re.search(r"BANDWIDTH=(\d+)", info)
+        if bw_match:
+            bandwidth = int(bw_match.group(1))
+        res_match = re.search(r"RESOLUTION=(\d+)X(\d+)", info)
+        if res_match:
+            width = int(res_match.group(1))
+            height = int(res_match.group(2))
+            resolution = f"{width}x{height}"
+            resolution_score = width * height
+        for next_line in lines[i + 1:]:
+            next_line = next_line.strip()
+            if not next_line or next_line.startswith("#"):
+                continue
+            variant_url = normalize_url(next_line, base_url)
+            if variant_url:
+                variants.append({
+                    "url": variant_url,
+                    "bandwidth": bandwidth,
+                    "resolution": resolution,
+                    "resolution_score": resolution_score,
+                    "quality": quality_from_url(variant_url) or (resolution_score // 1000 if resolution_score else 0),
+                })
+            break
+    return variants
+
+
+def fetch_master_playlist(url, page, referer=None):
     if not url:
         return None
     if token_expired(url):
@@ -331,45 +390,38 @@ def resolve_master_playlist(url, page, referer=None):
         body = response.text()
         if "#EXTM3U" not in body:
             return None
-        if "#EXT-X-STREAM-INF" not in body:
-            return url
-        variants = []
-        lines = body.splitlines()
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if not line.startswith("#EXT-X-STREAM-INF"):
-                continue
-            info = line.upper()
-            bandwidth = 0
-            resolution_score = 0
-            bw_match = re.search(r"BANDWIDTH=(\d+)", info)
-            if bw_match:
-                bandwidth = int(bw_match.group(1))
-            res_match = re.search(r"RESOLUTION=(\d+)X(\d+)", info)
-            if res_match:
-                width = int(res_match.group(1))
-                height = int(res_match.group(2))
-                resolution_score = width * height
-            for next_line in lines[i + 1:]:
-                next_line = next_line.strip()
-                if not next_line or next_line.startswith("#"):
-                    continue
-                variant_url = normalize_url(next_line, url)
-                if variant_url:
-                    variants.append((resolution_score, bandwidth, variant_url))
-                break
-        variants = [x for x in variants if not token_expired(x[2])]
-        if not variants:
-            return url
-        variants.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        for _, _, variant in variants:
-            print(f"      [VARIANT] {variant}")
-            if validate_stream(variant, page, referer=referer):
-                return variant
-        return url
+        return body
     except Exception as e:
         print(f"      [MASTER ERROR] {str(e)[:200]}")
-        return url
+        return None
+
+
+def collect_all_variants(master_url, page, referer=None):
+    print("")
+    print(f"      [MASTER] {master_url}")
+    body = fetch_master_playlist(master_url, page, referer=referer)
+    if not body:
+        print("      [MASTER] Alinmadi")
+        return []
+    variants = parse_master_playlist(body, master_url)
+    if not variants:
+        print("      [MASTER] Variant yoxdur (bu artiq media playlist-dir)")
+        return []
+    print(f"      [MASTER] {len(variants)} variant tapildi")
+    valid = []
+    for v in variants:
+        if token_expired(v["url"]):
+            print(f"      [VARIANT] [EXPIRED] {v['url']}")
+            continue
+        print(f"      [VARIANT] {v['resolution'] or v['quality']}p - {v['url']}")
+        if validate_stream(v["url"], page, referer=referer):
+            v["valid"] = True
+            valid.append(v)
+            print(f"      [VARIANT] [OK] {v['resolution'] or v['quality']}p")
+        else:
+            print(f"      [VARIANT] [X] {v['resolution'] or v['quality']}p islemir")
+    valid.sort(key=lambda x: (x["resolution_score"], x["bandwidth"]), reverse=True)
+    return valid
 
 
 def scan_page(page, page_url):
@@ -427,21 +479,11 @@ def scan_page(page, page_url):
     return unique_urls(found)
 
 
-def pick_best_stream(candidates, page, referer=None):
+def pick_best_master(candidates, page, referer=None):
     if not candidates:
         return None
-    masters = []
-    variants = []
-    others = []
-    for url in candidates:
-        if is_master_playlist(url):
-            masters.append(url)
-        elif re.search(r"[/_-]\d{3,4}p\.m3u8", url.lower()):
-            variants.append(url)
-        elif re.search(r"_(hd|sd)\.m3u8", url.lower()):
-            variants.append(url)
-        else:
-            others.append(url)
+    masters = [u for u in candidates if is_master_playlist(u)]
+    others = [u for u in candidates if not is_master_playlist(u)]
     def sort_key(u):
         rem = token_remaining_seconds(u)
         if rem is None:
@@ -449,18 +491,41 @@ def pick_best_stream(candidates, page, referer=None):
         return (1, rem)
     masters.sort(key=sort_key, reverse=True)
     others.sort(key=sort_key, reverse=True)
-    variants.sort(key=sort_key, reverse=True)
-    ordered = masters + others + variants
-    for candidate in ordered[:50]:
+    for candidate in masters + others:
+        print("")
         print(f"      [CHECK] {candidate}")
         if validate_stream(candidate, page, referer=referer):
-            resolved = resolve_master_playlist(candidate, page, referer=referer)
-            if resolved:
-                print("")
-                print("      [SUCCESS]")
-                print(f"      {resolved}")
-                return resolved
+            print("")
+            print("      [SUCCESS]")
+            print(f"      {candidate}")
+            return candidate
     return None
+
+
+def build_quality_playlist(channel_id, channel, variants, master_url):
+    lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
+    for v in variants:
+        bw = v.get("bandwidth") or 0
+        res = v.get("resolution") or ""
+        if not res:
+            q = v.get("quality") or 0
+            if q >= 720:
+                res = "1280x720"
+            elif q >= 576:
+                res = "1024x576"
+            elif q >= 480:
+                res = "854x480"
+            elif q >= 360:
+                res = "640x360"
+            else:
+                res = "640x360"
+        if bw <= 0:
+            bw = 1000000
+        lines.append(
+            f'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={bw},CODECS="",RESOLUTION={res}'
+        )
+        lines.append(v["url"])
+    return "\n".join(lines) + "\n"
 
 
 def browser_find_stream(page, channel_id, channel):
@@ -538,18 +603,23 @@ def browser_find_stream(page, channel_id, channel):
     candidates.sort(key=score_stream, reverse=True)
     print("")
     print(f"      [FOUND] {len(candidates)} aktual URL")
-    best = pick_best_stream(candidates, page, referer=referer)
+    best_master = pick_best_master(candidates, page, referer=referer)
     try:
         page.remove_listener("response", capture_response)
     except Exception:
         pass
-    return best
+    if not best_master:
+        return None, []
+    variants = collect_all_variants(best_master, page, referer=referer)
+    if not variants:
+        return best_master, []
+    return best_master, variants
 
 
 def fallback_find(request_context, channel_id):
     urls = FALLBACK_STREAMS.get(channel_id, [])
     if not urls:
-        return None
+        return None, []
     print("")
     print(f"[FALLBACK] {channel_id}")
     print("-" * 70)
@@ -575,73 +645,35 @@ def fallback_find(request_context, channel_id):
                 body = ""
             if "#EXTM3U" in body or "#EXT-X-" in body:
                 print("   [OK] Fallback isleyir")
-                resolved = resolve_master_with_request(request_context, url)
-                return resolved or url
+                variants = parse_master_playlist(body, url)
+                valid = []
+                for v in variants:
+                    try:
+                        r = request_context.get(v["url"], timeout=15000, fail_on_status_code=False)
+                        if r.status < 400:
+                            v["valid"] = True
+                            valid.append(v)
+                    except Exception:
+                        pass
+                if valid:
+                    valid.sort(key=lambda x: (x["resolution_score"], x["bandwidth"]), reverse=True)
+                return url, valid
             try:
                 content_type = response.headers.get("content-type", "").lower()
             except Exception:
                 content_type = ""
             if "mpegurl" in content_type or "vnd.apple.mpegurl" in content_type:
                 print("   [OK] HLS Content-Type")
-                resolved = resolve_master_with_request(request_context, url)
-                return resolved or url
+                return url, []
         except Exception as e:
             print(f"   [ERROR] {str(e)[:200]}")
-    return None
-
-
-def resolve_master_with_request(request_context, url):
-    if not url:
-        return None
-    if token_expired(url):
-        return None
-    try:
-        response = request_context.get(url, timeout=20000, fail_on_status_code=False)
-        if response.status >= 400:
-            return None
-        body = response.text()
-        if "#EXTM3U" not in body:
-            return None
-        if "#EXT-X-STREAM-INF" not in body:
-            return url
-        variants = []
-        lines = body.splitlines()
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if not line.startswith("#EXT-X-STREAM-INF"):
-                continue
-            info = line.upper()
-            bandwidth = 0
-            resolution_score = 0
-            bw_match = re.search(r"BANDWIDTH=(\d+)", info)
-            if bw_match:
-                bandwidth = int(bw_match.group(1))
-            res_match = re.search(r"RESOLUTION=(\d+)X(\d+)", info)
-            if res_match:
-                width = int(res_match.group(1))
-                height = int(res_match.group(2))
-                resolution_score = width * height
-            for next_line in lines[i + 1:]:
-                next_line = next_line.strip()
-                if not next_line or next_line.startswith("#"):
-                    continue
-                variant_url = normalize_url(next_line, url)
-                if variant_url:
-                    variants.append((resolution_score, bandwidth, variant_url))
-                break
-        variants = [x for x in variants if not token_expired(x[2])]
-        if not variants:
-            return url
-        variants.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        return variants[0][2]
-    except Exception:
-        return url
+    return None, []
 
 
 def prepare_folders():
     os.makedirs("streams", exist_ok=True)
     for f in os.listdir("streams"):
-        if f.endswith(".m3u") or f.endswith(".error.txt") or f in ("links.txt", "github_links.txt"):
+        if f.endswith(".m3u") or f.endswith(".m3u8") or f.endswith(".error.txt") or f in ("links.txt", "github_links.txt"):
             try:
                 os.remove(os.path.join("streams", f))
             except Exception:
@@ -663,6 +695,17 @@ def write_m3u(channel_id, channel, stream_url):
     print(f"[WRITE] {path}")
 
 
+def write_quality_playlist(channel_id, channel, variants):
+    if not variants:
+        return None
+    path = os.path.join("streams", f"{channel_id}_all.m3u8")
+    content = build_quality_playlist(channel_id, channel, variants, None)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"[WRITE] {path}")
+    return path
+
+
 def write_error(channel_id, channel):
     path = os.path.join("streams", f"{channel_id}.error.txt")
     with open(path, "w", encoding="utf-8") as f:
@@ -677,30 +720,42 @@ def write_error(channel_id, channel):
 
 def write_all_m3u(results):
     for cid, ch in CHANNELS.items():
-        stream = results.get(cid)
-        if stream:
-            write_m3u(cid, ch, stream)
+        data = results.get(cid)
+        if not data:
+            continue
+        master = data.get("master")
+        variants = data.get("variants") or []
+        if master:
+            write_m3u(cid, ch, master)
+        if variants:
+            write_quality_playlist(cid, ch, variants)
     all_path = os.path.join("streams", "all.m3u")
     lines = ["#EXTM3U"]
     for cid, ch in CHANNELS.items():
-        stream = results.get(cid)
-        if not stream:
+        data = results.get(cid)
+        if not data:
+            continue
+        master = data.get("master")
+        if not master:
             continue
         lines.append(
             f'#EXTINF:-1 tvg-id="{cid}" tvg-name="{ch["name"]}" '
             f'group-title="Turkiye",{ch["name"]}'
         )
-        lines.append(stream)
+        lines.append(master)
     with open(all_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     print(f"[WRITE] {all_path}")
     links_path = os.path.join("streams", "links.txt")
     with open(links_path, "w", encoding="utf-8") as f:
         for cid, ch in CHANNELS.items():
-            stream = results.get(cid)
-            if not stream:
+            data = results.get(cid)
+            if not data:
                 continue
-            f.write(f"# {ch['name']}\n{stream}\n\n")
+            master = data.get("master")
+            if not master:
+                continue
+            f.write(f"# {ch['name']}\n{master}\n\n")
     print(f"[WRITE] {links_path}")
     repo = os.environ.get("GITHUB_REPOSITORY", "USERNAME/REPO")
     base = f"https://raw.githubusercontent.com/{repo}/main/streams"
@@ -710,10 +765,17 @@ def write_all_m3u(results):
         f.write(f"{base}/all.m3u\n\n")
         f.write("# AYRI-AYRI KANALLAR\n")
         for cid, ch in CHANNELS.items():
-            stream = results.get(cid)
-            if not stream:
+            data = results.get(cid)
+            if not data:
                 continue
-            f.write(f"# {ch['name']}\n{base}/{cid}.m3u\n\n")
+            master = data.get("master")
+            if not master:
+                continue
+            f.write(f"# {ch['name']}\n{base}/{cid}.m3u\n")
+            if data.get("variants"):
+                f.write(f"# {ch['name']} - BUTUN KEYFIYYETLER\n{base}/{cid}_all.m3u8\n\n")
+            else:
+                f.write("\n")
     print(f"[WRITE] {github_links_path}")
 
 
@@ -721,7 +783,7 @@ def main():
     print("")
     print("=" * 70)
     print("TURK TV LIVE M3U AUTO SCANNER")
-    print("Playwright + Chromium + Fresh Token Detection")
+    print("Playwright + Chromium + Full Quality Variants")
     print("=" * 70)
     print("")
     print("[STEP 1] Kohne fayllar silinir...")
@@ -771,17 +833,19 @@ def main():
             for cid, ch in CHANNELS.items():
                 referer = REFERERS.get(cid, ch["url"])
                 page = context.new_page()
+                master = None
+                variants = []
                 try:
-                    stream = browser_find_stream(page, cid, ch)
+                    master, variants = browser_find_stream(page, cid, ch)
                 except Exception as e:
                     print(f"[BROWSER CRASH] {ch['name']}: {str(e)[:200]}")
-                    stream = None
+                    master, variants = None, []
                 finally:
                     try:
                         page.close()
                     except Exception:
                         pass
-                if not stream:
+                if not master:
                     print("")
                     print(f"[BROWSER X] {ch['name']} tapilmadi")
                     try:
@@ -799,11 +863,11 @@ def main():
                         },
                     )
                     try:
-                        stream = fallback_find(request_context, cid)
+                        master, variants = fallback_find(request_context, cid)
                     except Exception as e:
                         print(f"[FALLBACK CRASH] {ch['name']}: {str(e)[:200]}")
-                        stream = None
-                results[cid] = stream
+                        master, variants = None, []
+                results[cid] = {"master": master, "variants": variants}
         finally:
             try:
                 request_context.dispose()
@@ -821,10 +885,13 @@ def main():
     print("[STEP 3] Neticeler yazilir...")
     write_all_m3u(results)
     for cid, ch in CHANNELS.items():
-        stream = results.get(cid)
-        if stream:
+        data = results.get(cid)
+        master = data.get("master") if data else None
+        variants = data.get("variants") if data else []
+        if master:
             success += 1
-            print(f"[OK] {ch['name']}")
+            q_count = len(variants)
+            print(f"[OK] {ch['name']} ({q_count} keyfiyyet)")
         else:
             write_error(cid, ch)
             failed += 1
