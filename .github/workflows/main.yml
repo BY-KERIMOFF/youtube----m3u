@@ -1,65 +1,113 @@
-name: run main.py
+name: Update All Channels
+
 on:
   schedule:
-    - cron: '0 */2 * * *'
-  pull_request:
-      branches:
-        - main
+    - cron: '*/15 * * * *'
+
   workflow_dispatch:
 
+concurrency:
+  group: update-all-channels
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps: 
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
+
+    steps:
+
+      - name: Repoyu klonla
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Python qur
         uses: actions/setup-python@v5
         with:
-            python-version: '3.12'  # Use stable version
-      
-      - name: Install dependencies
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Python paketlərini qur
         run: |
           python -m pip install --upgrade pip
-          pip install streamlink
-      
-      - name: Debug - Check config file
+          pip install playwright
+
+      - name: Chromium qur
         run: |
-          echo "=== Config file content ==="
-          cat config.json
-          echo ""
-          echo "=== Current directory ==="
-          pwd
-          ls -la
-      
-      - name: execute py script 
+          python -m playwright install --with-deps chromium
+
+      - name: Streams qovluğunu yarat
         run: |
-          python main.py config.json
+          mkdir -p streams
+
+      - name: Köhnə error fayllarını sil
+        run: |
+          rm -f streams/*.error.txt || true
+
+      - name: Kanal scanner-i işə sal
+        run: |
+          python3 channels.py
+
+      - name: Last run
+        run: |
+          echo "Son yenilenme: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" \
+            > streams/last_run.txt
+
+      - name: Nəticələri göstər
+        run: |
           echo ""
-          echo "=== Script completed, checking output ==="
-          ls -la
-          if [ -d "playlist" ]; then
-            echo "Playlist folder exists:"
-            ls -la playlist/
-            if [ -d "playlist/master" ]; then
-              echo "Master folder files:"
-              ls -la playlist/master/
+          echo "======================================"
+          echo "YARADILAN FAYLLAR"
+          echo "======================================"
+          ls -lah streams/
+          echo ""
+          echo "======================================"
+          echo "M3U FAYLLARI"
+          echo "======================================"
+          for file in streams/*.m3u
+          do
+            echo ""
+            echo "========== $file =========="
+            cat "$file"
+          done
+          echo ""
+          echo "======================================"
+          echo "ERROR FAYLLARI"
+          echo "======================================"
+          for file in streams/*.error.txt
+          do
+            if [ -f "$file" ]; then
+              echo ""
+              cat "$file"
             fi
-            if [ -d "playlist/best" ]; then
-              echo "Best folder files:"
-              ls -la playlist/best/
-            fi
-          else
-            echo "ERROR: Playlist folder not created!"
+          done
+
+      - name: Git config
+        run: |
+          git config user.email \
+            "github-actions[bot]@users.noreply.github.com"
+          git config user.name \
+            "github-actions[bot]"
+
+      - name: Dəyişiklikləri commit et
+        run: |
+          git add streams/
+          if git diff --cached --quiet; then
+            echo "Dəyişiklik yoxdur."
+            exit 0
           fi
-      
-      - name: commit and push files
+          git commit \
+            -m "Update all streams $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: GitHub ilə sinxronlaşdır
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git status
-          git diff --quiet && git diff --staged --quiet || git commit -m "updated streams $(date +'%Y-%m-%d %H:%M:%S')"
-          git push
+          git fetch origin main
+          git rebase origin/main
+
+      - name: Push
+        run: |
+          git push origin HEAD:main
