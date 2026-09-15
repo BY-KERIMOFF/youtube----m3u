@@ -11,8 +11,9 @@ HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/153.0 Safari/537.36"
+        "Chrome/153.0.0.0 Safari/537.36"
     ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
 }
 
@@ -22,6 +23,14 @@ session.headers.update(HEADERS)
 visited = set()
 film_pages = set()
 streams = {}
+
+
+def normalize(url):
+    return url.split("#")[0].rstrip("/") + "/"
+
+
+def same_domain(url):
+    return urlparse(url).netloc == urlparse(BASE).netloc
 
 
 def fetch(url):
@@ -40,16 +49,16 @@ def fetch(url):
         return ""
 
 
-def same_domain(url):
-    return urlparse(url).netloc == urlparse(BASE).netloc
+def discover_page(url):
+    url = normalize(url)
 
+    if url in visited:
+        return
 
-def normalize(url):
-    url = url.split("#")[0]
-    return url.rstrip("/") + "/"
+    visited.add(url)
 
+    print("[SCAN]", url)
 
-def discover_links(url):
     html = fetch(url)
 
     if not html:
@@ -59,101 +68,176 @@ def discover_links(url):
 
     for a in soup.find_all("a", href=True):
 
-        href = urljoin(url, a["href"])
-        href = normalize(href)
+        href = normalize(urljoin(url, a["href"]))
 
         if not same_domain(href):
             continue
 
-        # artıq baxılıbsa keç
+        if href == normalize(BASE):
+            continue
+
         if href in visited:
             continue
 
         text = a.get_text(" ", strip=True)
 
-        # video/film səhifəsinə oxşayan linklər
-        if text and len(text) >= 2:
+        if not text:
+            continue
 
-            bad = [
-                "/kategori/",
-                "/category/",
-                "/tag/",
-                "/etiket/",
-                "/author/",
-                "/page/",
-                "/iletisim/",
-                "/hakkimizda/",
-                "/gizlilik/",
-            ]
+        # Kateqoriya
+        if "/kategori/" in href:
 
-            if not any(x in href.lower() for x in bad):
+            discover_page(href)
+            continue
 
-                # ana səhifə deyil
-                if href != normalize(BASE):
+        # Pagination
+        if "/page/" in href:
 
-                    film_pages.add(href)
+            discover_page(href)
+            continue
 
-        # pagination və kateqoriyaları da sonradan analiz etmək üçün saxla
-        if (
-            "/kategori/" in href
-            or "/category/" in href
-            or "/page/" in href
-        ):
-            if href not in visited:
-                discover_links(href)
+        # Sistem səhifələrini keç
+        ignored = [
+            "/giris/",
+            "/kayit/",
+            "/iletisim/",
+            "/hakkimizda/",
+            "/gizlilik/",
+            "/kvkk/",
+            "/sitemap",
+            "/etiket/",
+            "/tag/",
+            "/author/",
+        ]
 
-    visited.add(url)
+        if any(x in href.lower() for x in ignored):
+            continue
+
+        # Film səhifəsi
+        film_pages.add(href)
 
 
-def find_stream(url, html):
+def extract_streams(page_url, html):
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # video/source tagları
-    for tag in soup.find_all(["video", "source"]):
+    found = []
+
+    # --------------------------------
+    # VIDEO
+    # --------------------------------
+
+    for video in soup.find_all("video"):
 
         for attr in ["src", "data-src"]:
 
-            value = tag.get(attr)
+            src = video.get(attr)
 
-            if not value:
-                continue
+            if src:
 
-            value = urljoin(url, value)
+                src = urljoin(page_url, src)
 
-            if (
-                ".m3u8" in value.lower()
-                or ".mp4" in value.lower()
-            ):
-                return value
+                if ".m3u8" in src.lower() or ".mp4" in src.lower():
+                    found.append(src)
 
-    # iframe
-    for iframe in soup.find_all("iframe", src=True):
+    # --------------------------------
+    # SOURCE
+    # --------------------------------
 
-        src = urljoin(url, iframe["src"])
+    for source in soup.find_all("source"):
 
-        print(f"    [IFRAME] {src}")
+        for attr in ["src", "data-src"]:
 
-    # HTML daxilində açıq m3u8
+            src = source.get(attr)
+
+            if src:
+
+                src = urljoin(page_url, src)
+
+                if ".m3u8" in src.lower() or ".mp4" in src.lower():
+                    found.append(src)
+
+    # --------------------------------
+    # IFRAME
+    # --------------------------------
+
+    for iframe in soup.find_all("iframe"):
+
+        src = iframe.get("src")
+
+        if not src:
+            continue
+
+        src = urljoin(page_url, src)
+
+        print("    [IFRAME]", src)
+
+        # iframe URL-ni də açıq şəkildə yoxla
+        try:
+
+            iframe_html = fetch(src)
+
+            if iframe_html:
+
+                for pattern in [
+                    r'https?://[^"\'<>\s]+\.m3u8(?:\?[^"\'<>\s]*)?',
+                    r'https?://[^"\'<>\s]+\.mp4(?:\?[^"\'<>\s]*)?',
+                ]:
+
+                    matches = re.findall(
+                        pattern,
+                        iframe_html,
+                        re.I
+                    )
+
+                    found.extend(matches)
+
+        except Exception as e:
+
+            print("    [IFRAME ERROR]", e)
+
+    # --------------------------------
+    # HTML-də açıq M3U8 / MP4
+    # --------------------------------
+
     patterns = [
+
         r'https?://[^"\'<>\s]+\.m3u8(?:\?[^"\'<>\s]*)?',
+
         r'https?://[^"\'<>\s]+\.mp4(?:\?[^"\'<>\s]*)?',
+
     ]
 
     for pattern in patterns:
 
-        matches = re.findall(pattern, html, re.I)
+        matches = re.findall(
+            pattern,
+            html,
+            re.I
+        )
 
-        if matches:
-            return matches[0]
+        found.extend(matches)
 
-    return None
+    # təkrarları sil
+    result = []
+
+    for url in found:
+
+        url = url.replace("\\/", "/")
+
+        if url not in result:
+
+            result.append(url)
+
+    return result
 
 
 def parse_film(url):
 
     print()
+    print("=" * 70)
     print("[FILM]", url)
+    print("=" * 70)
 
     html = fetch(url)
 
@@ -162,6 +246,7 @@ def parse_film(url):
 
     soup = BeautifulSoup(html, "html.parser")
 
+    # Film adı
     title = ""
 
     h1 = soup.find("h1")
@@ -179,25 +264,36 @@ def parse_film(url):
     title = re.sub(r"\s+", " ", title).strip()
 
     if not title:
+        title = urlparse(url).path.strip("/").split("/")[-1]
+
+    found = extract_streams(url, html)
+
+    if not found:
+
+        print("[NO OPEN STREAM]")
+
         return
 
-    stream = find_stream(url, html)
+    print()
+    print("[STREAM FOUND]")
 
-    if stream:
+    for stream in found:
+
+        print(stream)
 
         streams[title] = stream
 
-        print("[STREAM FOUND]")
-        print(stream)
-
-    else:
-
-        print("[NO OPEN M3U8/MP4]")
+        # İlk açıq stream kifayətdir
+        break
 
 
-def save():
+def save_m3u():
 
-    with open(OUTPUT, "w", encoding="utf-8") as f:
+    with open(
+        OUTPUT,
+        "w",
+        encoding="utf-8"
+    ) as f:
 
         f.write("#EXTM3U\n\n")
 
@@ -209,31 +305,36 @@ def save():
                 f'#EXTINF:-1,{title}\n'
             )
 
-            f.write(url + "\n")
+            f.write(
+                url + "\n"
+            )
 
     print()
-    print("=" * 60)
-    print("FOUND:", len(streams))
-    print("OUTPUT:", OUTPUT)
-    print("=" * 60)
+    print("=" * 70)
+    print("M3U HAZIR")
+    print("Film sayı:", len(streams))
+    print("Fayl:", OUTPUT)
+    print("=" * 70)
 
 
 def main():
 
-    print("=" * 60)
-    print("720IZLE SCRAPER")
-    print("=" * 60)
+    print("=" * 70)
+    print("720IZLE M3U SCRAPER")
+    print("=" * 70)
 
     print()
-    print("[1] Sayt analiz edilir...")
+    print("[1] Sayt və kateqoriyalar tapılır...")
 
-    discover_links(BASE)
+    discover_page(BASE)
 
     print()
-    print("[2] Tapilan səhifələr:", len(film_pages))
+    print("=" * 70)
+    print("TAPILAN SƏHİFƏLƏR:", len(film_pages))
+    print("=" * 70)
 
-    # İlk mərhələdə maksimum 500 səhifə
-    pages = list(film_pages)[:500]
+    # İlk 300 film
+    pages = list(film_pages)[:300]
 
     for i, url in enumerate(pages, 1):
 
@@ -242,9 +343,9 @@ def main():
 
         parse_film(url)
 
-        time.sleep(0.3)
+        time.sleep(0.5)
 
-    save()
+    save_m3u()
 
 
 if __name__ == "__main__":
