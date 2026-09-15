@@ -1,5 +1,4 @@
 import re
-import json
 import time
 from urllib.parse import urljoin, urlparse, urldefrag
 
@@ -7,12 +6,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
-BASE_URL = "https://720izle.com/"
+BASE_URL = "https://www.hdfilmcehennemi.nl/"
 OUTPUT_FILE = "films.m3u"
 
 MAX_PAGES = 500
 TIMEOUT = 20
-DELAY = 0.3
+DELAY = 0.5
 
 HEADERS = {
     "User-Agent": (
@@ -26,7 +25,6 @@ HEADERS = {
     ),
     "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
 }
-
 
 session = requests.Session()
 session.headers.update(HEADERS)
@@ -46,8 +44,11 @@ def normalize_url(url, base=BASE_URL):
     if not url:
         return None
 
-    url = url.replace("\\/", "/")
-    url = url.replace("&amp;", "&")
+    url = (
+        url
+        .replace("\\/", "/")
+        .replace("&amp;", "&")
+    )
 
     if url.startswith("//"):
         url = "https:" + url
@@ -83,18 +84,20 @@ def get_page(url):
 
     try:
 
-        r = session.get(
+        response = session.get(
             url,
             timeout=TIMEOUT,
             allow_redirects=True
         )
 
-        print(f"[HTTP {r.status_code}] {url}")
+        print(
+            f"[HTTP {response.status_code}] {url}"
+        )
 
-        if r.status_code != 200:
+        if response.status_code != 200:
             return None
 
-        return r.text
+        return response.text
 
     except Exception as e:
 
@@ -118,7 +121,6 @@ def get_title(html, url):
     h1 = soup.find("h1")
 
     if h1:
-
         title = h1.get_text(
             " ",
             strip=True
@@ -129,7 +131,9 @@ def get_title(html, url):
 
     meta = soup.find(
         "meta",
-        attrs={"property": "og:title"}
+        attrs={
+            "property": "og:title"
+        }
     )
 
     if meta:
@@ -152,7 +156,6 @@ def get_title(html, url):
     path = urlparse(url).path.strip("/")
 
     if path:
-
         return path.split("/")[-1]
 
     return "Unknown"
@@ -211,18 +214,69 @@ def extract_links(html):
 
 
 # =========================================================
-# PLAYER URL CHECK
+# FILM URL
 # =========================================================
 
-def looks_like_player_url(url):
+def is_film_page(url):
+
+    path = urlparse(url).path.lower()
+
+    # HDFilmCehennemi-də film URL-lərinin
+    # əsas hissəsi slug şəklindədir.
+    #
+    # Buna görə yalnız kateqoriya və sistem
+    # səhifələrini çıxarırıq.
+
+    blocked = (
+        "/kategori/",
+        "/category/",
+        "/page/",
+        "/tag/",
+        "/etiket/",
+        "/search/",
+        "/iletisim",
+        "/hakkimizda",
+        "/giris",
+        "/kayit",
+        "/login",
+        "/register",
+    )
+
+    if any(
+        item in path
+        for item in blocked
+    ):
+        return False
+
+    if not path or path == "/":
+        return False
+
+    return True
+
+
+# =========================================================
+# PLAYER URL
+# =========================================================
+
+def player_candidate(url):
 
     if not url:
         return False
 
-    lower = url.lower()
+    low = url.lower()
 
-    # Bunlar birbaşa media URL-ləri
-    media_extensions = (
+    keywords = (
+        "player",
+        "embed",
+        "iframe",
+        "video",
+        "stream",
+        "watch",
+        "play",
+        "rapidrame",
+    )
+
+    media = (
         ".m3u8",
         ".mp4",
         ".m4v",
@@ -232,34 +286,17 @@ def looks_like_player_url(url):
         ".ts",
     )
 
-    if any(
-        ext in lower
-        for ext in media_extensions
-    ):
+    if any(x in low for x in media):
         return True
 
-    # Player / embed URL-ləri
-    keywords = (
-        "player",
-        "embed",
-        "video",
-        "stream",
-        "play",
-        "watch",
-        "iframe",
-    )
-
-    if any(
-        x in lower
-        for x in keywords
-    ):
+    if any(x in low for x in keywords):
         return True
 
     return False
 
 
 # =========================================================
-# PLAYER URL EXTRACTION
+# EXTRACT PLAYER
 # =========================================================
 
 def extract_player_urls(html, page_url):
@@ -275,89 +312,89 @@ def extract_player_urls(html, page_url):
     # IFRAME
     # -----------------------------------------------------
 
-    for iframe in soup.find_all("iframe"):
+    for iframe in soup.find_all(
+        "iframe"
+    ):
 
-        attrs = [
+        for attr in (
             "src",
             "data-src",
             "data-url",
             "data-video",
             "data-player",
             "data-embed",
-        ]
-
-        for attr in attrs:
+        ):
 
             value = iframe.get(attr)
 
             if not value:
                 continue
 
-            value = normalize_url(
+            url = normalize_url(
                 value,
                 page_url
             )
 
-            if value:
-                found.add(value)
+            if url:
+                found.add(url)
 
     # -----------------------------------------------------
     # VIDEO
     # -----------------------------------------------------
 
-    for video in soup.find_all("video"):
+    for video in soup.find_all(
+        "video"
+    ):
 
-        attrs = [
+        for attr in (
             "src",
             "data-src",
             "data-url",
             "data-video",
             "data-file",
-        ]
-
-        for attr in attrs:
+        ):
 
             value = video.get(attr)
 
             if not value:
                 continue
 
-            value = normalize_url(
+            url = normalize_url(
                 value,
                 page_url
             )
 
-            if value:
-                found.add(value)
+            if url:
+                found.add(url)
 
     # -----------------------------------------------------
     # SOURCE
     # -----------------------------------------------------
 
-    for source in soup.find_all("source"):
+    for source in soup.find_all(
+        "source"
+    ):
 
-        attrs = [
+        for attr in (
             "src",
             "data-src",
             "data-url",
             "data-file",
             "data-video",
-        ]
-
-        for attr in attrs:
+        ):
 
             value = source.get(attr)
 
             if not value:
                 continue
 
-            value = normalize_url(
+            url = normalize_url(
                 value,
                 page_url
             )
 
-            if value:
-                found.add(value)
+            if url:
+                found.add(url)
 
     # -----------------------------------------------------
     # OBJECT / EMBED
@@ -367,25 +404,25 @@ def extract_player_urls(html, page_url):
         ["object", "embed"]
     ):
 
-        for attr in [
+        for attr in (
             "src",
             "data",
             "data-src",
             "data-url",
-        ]:
+        ):
 
             value = tag.get(attr)
 
             if not value:
                 continue
 
-            value = normalize_url(
+            url = normalize_url(
                 value,
                 page_url
             )
 
-            if value:
-                found.add(value)
+            if url:
+                found.add(url)
 
     # -----------------------------------------------------
     # DATA ATTRIBUTES
@@ -395,110 +432,53 @@ def extract_player_urls(html, page_url):
 
         for attr, value in tag.attrs.items():
 
-            if not attr.startswith("data-"):
+            if not attr.startswith(
+                "data-"
+            ):
                 continue
 
             if isinstance(value, list):
                 value = " ".join(value)
 
-            if not isinstance(value, str):
+            if not isinstance(
+                value,
+                str
+            ):
                 continue
 
-            value = value.strip()
-
-            if not value:
-                continue
-
-            # Əgər data attribute URL-dirsə
-            if (
-                value.startswith("http://")
-                or value.startswith("https://")
+            if not (
+                value.startswith("http")
                 or value.startswith("//")
                 or value.startswith("/")
             ):
-
-                url = normalize_url(
-                    value,
-                    page_url
-                )
-
-                if url:
-                    found.add(url)
-
-    # -----------------------------------------------------
-    # ABSOLUTE URL-lər
-    # -----------------------------------------------------
-
-    patterns = [
-
-        # http/https URL
-        r'https?://[^"\'>\s\\]+',
-
-        # protocol-relative
-        r'//[^"\'>\s\\]+',
-
-    ]
-
-    for pattern in patterns:
-
-        matches = re.findall(
-            pattern,
-            html,
-            re.IGNORECASE
-        )
-
-        for value in matches:
-
-            value = (
-                value
-                .replace("\\/", "/")
-                .replace("&amp;", "&")
-            )
+                continue
 
             url = normalize_url(
                 value,
                 page_url
             )
 
-            if not url:
-                continue
-
-            # yalnız player/media tipli URL-lər
-            if looks_like_player_url(url):
-
+            if url:
                 found.add(url)
 
-    return found
-
-
-# =========================================================
-# JAVASCRIPT PLAYER CONFIG
-# =========================================================
-
-def extract_js_player_data(html, page_url):
-
-    found = set()
+    # -----------------------------------------------------
+    # JAVASCRIPT URL
+    # -----------------------------------------------------
 
     decoded = (
         html
         .replace("\\/", "/")
         .replace("\\u002F", "/")
         .replace("\\u002f", "/")
-        .replace("&amp;", "&")
         .replace("\\u0026", "&")
+        .replace("&amp;", "&")
     )
-
-    # -----------------------------------------------------
-    # JSON kimi görünən URL-lər
-    # -----------------------------------------------------
 
     patterns = [
 
-        r'"(?:src|file|url|source|video|stream|embed|player)"\s*:\s*"([^"]+)"',
+        r'https?://[^"\'>\s\\]+',
 
-        r"'(?:src|file|url|source|video|stream|embed|player)'\s*:\s*'([^']+)'",
-
-        r'(?:src|file|url|source|video|stream|embed|player)\s*=\s*["\']([^"\']+)["\']',
+        r'//[^"\'>\s\\]+',
 
     ]
 
@@ -512,71 +492,41 @@ def extract_js_player_data(html, page_url):
 
         for value in matches:
 
+            value = value.rstrip(
+                ".,);}]"
+            )
+
             url = normalize_url(
                 value,
                 page_url
             )
 
-            if url:
+            if not url:
+                continue
+
+            if player_candidate(url):
                 found.add(url)
 
-    # -----------------------------------------------------
-    # URL-ləri ümumi regex ilə də tap
-    # -----------------------------------------------------
-
-    matches = re.findall(
-        r'https?://[^"\'>\s\\]+',
-        decoded,
-        re.IGNORECASE
-    )
-
-    for value in matches:
-
-        value = value.rstrip(
-            ".,);}]"
-        )
-
-        url = normalize_url(
-            value,
-            page_url
-        )
-
-        if not url:
-            continue
-
-        if looks_like_player_url(url):
-
-            found.add(url)
-
     return found
-
-
-# =========================================================
-# FILM PAGE
-# =========================================================
-
-def is_film_page(url):
-
-    path = urlparse(url).path.lower()
-
-    return "/filmler" in path
 
 
 # =========================================================
 # CRAWLER
 # =========================================================
 
-def crawl():
+def crawl_site():
 
     queue = [
         BASE_URL
     ]
 
     visited = set()
-
     film_pages = set()
 
-    while queue and len(visited) < MAX_PAGES:
+    while (
+        queue
+        and len(visited) < MAX_PAGES
+    ):
 
         url = queue.pop(0)
 
@@ -587,9 +537,9 @@ def crawl():
 
         print()
         print(
-            f"[SCAN {len(visited)}/{MAX_PAGES}] "
-            f"{url}"
+            f"[SCAN {len(visited)}/{MAX_PAGES}]"
         )
+        print(url)
 
         html = get_page(url)
 
@@ -604,30 +554,28 @@ def crawl():
 
         for link in links:
 
-            # Film səhifəsi
             if is_film_page(link):
 
                 film_pages.add(link)
 
-            # Saytı gəzməyə davam et
+            path = urlparse(
+                link
+            ).path.lower()
+
+            # Saytı daha dərindən gəzmək
             if (
                 link not in visited
                 and link not in queue
-            ):
-
-                path = urlparse(
-                    link
-                ).path.lower()
-
-                # Kateqoriya
-                if (
+                and (
                     "/kategori/" in path
                     or "/category/" in path
                     or "/page/" in path
                     or "/filmler" in path
-                ):
+                    or link == BASE_URL
+                )
+            ):
 
-                    queue.append(link)
+                queue.append(link)
 
         time.sleep(DELAY)
 
@@ -635,28 +583,32 @@ def crawl():
 
 
 # =========================================================
-# PROCESS FILMS
+# PROCESS
 # =========================================================
 
 def process_films(film_pages):
 
     results = []
 
+    pages = sorted(
+        film_pages
+    )
+
     print()
     print("=" * 70)
     print(
-        f"FILM SAYI: {len(film_pages)}"
+        f"FILM SAYI: {len(pages)}"
     )
     print("=" * 70)
 
     for index, url in enumerate(
-        sorted(film_pages),
+        pages,
         1
     ):
 
         print()
         print(
-            f"[FILM {index}/{len(film_pages)}]"
+            f"[FILM {index}/{len(pages)}]"
         )
 
         print(url)
@@ -675,32 +627,19 @@ def process_films(film_pages):
             f"[TITLE] {title}"
         )
 
-        # Player URL-ləri
-        urls = extract_player_urls(
+        players = extract_player_urls(
             html,
             url
         )
 
-        # JavaScript player məlumatları
-        js_urls = extract_js_player_data(
-            html,
-            url
-        )
-
-        urls.update(js_urls)
-
-        # Eyni saytın adi linklərini çıxar
+        # lazımsız faylları çıxart
         cleaned = set()
 
-        for player_url in urls:
+        for player in players:
 
-            if not player_url:
-                continue
+            low = player.lower()
 
-            lower = player_url.lower()
-
-            # şəkil/css/js kimi faylları at
-            if lower.endswith((
+            if low.endswith((
                 ".jpg",
                 ".jpeg",
                 ".png",
@@ -711,27 +650,25 @@ def process_films(film_pages):
             )):
                 continue
 
-            cleaned.add(
-                player_url
-            )
+            cleaned.add(player)
 
         if cleaned:
 
             print(
-                f"[PLAYER URL] {len(cleaned)}"
+                f"[PLAYER] {len(cleaned)}"
             )
 
-            for player_url in sorted(
+            for player in sorted(
                 cleaned
             ):
 
                 print(
-                    f"   -> {player_url}"
+                    f" -> {player}"
                 )
 
                 results.append({
                     "title": title,
-                    "url": player_url,
+                    "url": player,
                     "page": url,
                 })
 
@@ -747,13 +684,12 @@ def process_films(film_pages):
 
 
 # =========================================================
-# WRITE M3U
+# M3U
 # =========================================================
 
 def write_m3u(results):
 
     unique = set()
-
     final = []
 
     for item in results:
@@ -762,7 +698,7 @@ def write_m3u(results):
         url = item["url"]
 
         key = (
-            title.strip().lower(),
+            title.lower().strip(),
             url.strip()
         )
 
@@ -808,7 +744,7 @@ def write_m3u(results):
         f"M3U HAZIRDIR: {OUTPUT_FILE}"
     )
     print(
-        f"TOTAL PLAYER URL: {len(final)}"
+        f"TOTAL: {len(final)}"
     )
     print("=" * 70)
 
@@ -821,7 +757,9 @@ def main():
 
     print()
     print("=" * 70)
-    print("720IZLE PLAYER URL SCRAPER")
+    print(
+        "HDFILMCEHENNEMI PLAYER SCRAPER"
+    )
     print("=" * 70)
 
     print()
@@ -829,12 +767,11 @@ def main():
         "[1] Film səhifələri tapılır..."
     )
 
-    film_pages = crawl()
+    films = crawl_site()
 
     print()
     print(
-        f"[INFO] Film səhifələri: "
-        f"{len(film_pages)}"
+        f"[INFO] Film səhifəsi: {len(films)}"
     )
 
     print()
@@ -843,12 +780,12 @@ def main():
     )
 
     results = process_films(
-        film_pages
+        films
     )
 
     print()
     print(
-        "[3] films.m3u yaradılır..."
+        "[3] M3U yaradılır..."
     )
 
     write_m3u(
