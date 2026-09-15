@@ -10,36 +10,42 @@ permissions:
   contents: write
 
 jobs:
-
   update:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: Scraper
+      - name: Run scraper
         run: |
           python scraper.py
 
-      - name: Save M3U
+      - name: Check M3U
+        run: |
+          echo "===== films.m3u ====="
+          ls -lh films.m3u
+          head -20 films.m3u
+
+      - name: Commit M3U
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add films.m3u
 
-          git diff --cached --quiet || git commit -m "Update 720izle films"
-
-          git push
+          if git diff --cached --quiet; then
+            echo "Dəyişiklik yoxdur."
+          else
+            git commit -m "Update 720izle M3U"
+            git push
+          fi
