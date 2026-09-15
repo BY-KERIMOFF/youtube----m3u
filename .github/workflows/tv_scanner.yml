@@ -17,21 +17,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Scrape
+      - name: Run scraper
         run: |
           python scraper.py
 
-      - name: Check M3U
+      - name: Check result
         run: |
           echo "=============================="
           echo "M3U RESULT"
@@ -39,14 +39,18 @@ jobs:
 
           if [ -f films.m3u ]; then
             echo "films.m3u yaradildi"
+            echo "Sətir sayı:"
             wc -l films.m3u
-            head -30 films.m3u
+
+            echo ""
+            echo "İlk nəticələr:"
+            head -40 films.m3u
           else
-            echo "films.m3u YOXDUR"
+            echo "films.m3u YARANMADI"
             exit 1
           fi
 
-      - name: Commit
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -54,7 +58,7 @@ jobs:
           git add films.m3u
 
           if git diff --cached --quiet; then
-            echo "Deyisiklik yoxdur."
+            echo "Yeni dəyişiklik yoxdur."
           else
             git commit -m "Update HDFilmCehennemi M3U"
             git push
