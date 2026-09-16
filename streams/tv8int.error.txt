@@ -1,4 +1,4 @@
 Kanal: TV8 International
 URL: https://www.tv8.com.tr/tv8-international
 Status: M3U8 tapilmadi
-Vaxt: 2026-09-16 17:31:53 UTC
+Vaxt: 2026-09-16 20:26:25 UTC
