@@ -1,17 +1,17 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="showtv" tvg-name="Show TV" group-title="Turkiye",Show TV
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789698575&st=_g7nx3hmsJDTQSMm85MTqg&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789715277&st=T6QhBShuhoD2SxFic7iw0g&tv=1
 #EXTINF:-1 tvg-id="showturk" tvg-name="ShowTurk" group-title="Turkiye",ShowTurk
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789698721&st=cUrLGuKzVN49GViM2Gt0ew&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789715525&st=NORGAR3Fm6FTxE_LggJdbw&tv=1
 #EXTINF:-1 tvg-id="nowtv" tvg-name="NOW TV" group-title="Turkiye",NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=g6NpYoirwNNfyn3t5u3N-w&e=1789705805
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=CwlfZhv3_eJFTbCb7cqkbw&e=1789722614
 #EXTINF:-1 tvg-id="tv8" tvg-name="TV8" group-title="Turkiye",TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8re5fcafjbl6&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8reuc1ouv7vv&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXTINF:-1 tvg-id="kanald" tvg-name="Kanal D" group-title="Turkiye",Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 #EXTINF:-1 tvg-id="teve2" tvg-name="Teve2" group-title="Turkiye",Teve2
-https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8re5pco0zl6s&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8reum3ny4tw2&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
 #EXTINF:-1 tvg-id="startv" tvg-name="Star TV" group-title="Turkiye",Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8re5rtl7d1yj&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8reuol7nhbu7&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 #EXTINF:-1 tvg-id="eurostar" tvg-name="Eurostar TV" group-title="Turkiye",Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=miVj23thtBrzDIzNcoOgzw&e=1789778393
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=IEwmosjzXRl9EOGGGw4aTA&e=1789795147
