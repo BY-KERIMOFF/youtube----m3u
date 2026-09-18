@@ -1,8 +1,8 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1050000,CODECS="",RESOLUTION=1280x720
-https://nowtv.daioncdn.net/nowtv/nowtv_720p.m3u8?ex=1789786211&st=eHyL-EbE_dLQMmdXlnCz-Q&sid=8rh0l8v7omnu&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
+https://nowtv.daioncdn.net/nowtv/nowtv_720p.m3u8?ex=1789794190&st=27EUndKgPrDrip4dVXwHYg&sid=8rhcjwvaiyv4&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,CODECS="",RESOLUTION=854x480
-https://nowtv.daioncdn.net/nowtv/nowtv_480p.m3u8?ex=1789786211&st=eHyL-EbE_dLQMmdXlnCz-Q&sid=8rh0l8v7omnu&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
+https://nowtv.daioncdn.net/nowtv/nowtv_480p.m3u8?ex=1789794190&st=27EUndKgPrDrip4dVXwHYg&sid=8rhcjwvaiyv4&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=550000,CODECS="",RESOLUTION=640x360
-https://nowtv.daioncdn.net/nowtv/nowtv_360p.m3u8?ex=1789786211&st=eHyL-EbE_dLQMmdXlnCz-Q&sid=8rh0l8v7omnu&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
+https://nowtv.daioncdn.net/nowtv/nowtv_360p.m3u8?ex=1789794190&st=27EUndKgPrDrip4dVXwHYg&sid=8rhcjwvaiyv4&app=65fa8997-2b2f-4529-85ea-84318628a608&ce=3
