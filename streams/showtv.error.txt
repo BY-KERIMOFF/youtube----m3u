@@ -1,4 +1,0 @@
-Kanal: Show TV
-URL: https://www.showtv.com.tr/canli-yayin
-Status: M3U8 tapilmadi
-Vaxt: 2026-09-18 17:30:20 UTC
