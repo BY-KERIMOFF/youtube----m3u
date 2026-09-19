@@ -1,24 +1,24 @@
 # Show TV
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789775043&st=AzUxYEdkU2ixkxpQ9PmY8g&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789783858&st=Cjac_yLbawriz-GJq_mPUQ&tv=1
 
 # ShowTurk
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789776206&st=-oV-KYHGKPHKDZOjinEqdQ&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1789784294&st=bu-tMQNEfnpvpubwFtcl4A&tv=1
 
 # NOW TV
-https://nowtv.daioncdn.net/nowtv/nowtv.m3u8?ce=3&app=65fa8997-2b2f-4529-85ea-84318628a608&st=bj6FRAsoxKWW9OavTr0ZJQ&e=1789783390
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=gDRHIQmCrThIztjb1lHrCA&e=1789791260
 
 # TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8rhck41c1vrt&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8rholh04kdbh&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 
 # Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 
 # Teve2
-https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8rhcu33csisu&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8rhovgslog6r&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
 
 # Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8rhcwmxzhzzd&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8rhoy49ucgfr&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 
 # Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=-CveFEvXknBkiJmLcZBrhQ&e=1789855832
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=C2uOJKhQTdiUSHkwvSdKaw&e=1789863931
 
