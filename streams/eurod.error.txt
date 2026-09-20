@@ -1,4 +1,4 @@
 Kanal: Euro D
 URL: https://www.eurod.com.tr/canli-yayin
 Status: M3U8 tapilmadi
-Vaxt: 2026-09-20 00:33:37 UTC
+Vaxt: 2026-09-20 05:14:30 UTC
