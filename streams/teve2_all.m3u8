@@ -1,0 +1,10 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2200000,CODECS="",RESOLUTION=1920x1080
+https://demiroren.daioncdn.net/teve2/teve2_1080p.m3u8?&sid=8s6k3esadrti&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1050000,CODECS="",RESOLUTION=1280x720
+https://demiroren.daioncdn.net/teve2/teve2_720p.m3u8?&sid=8s6k3esadrti&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,CODECS="",RESOLUTION=854x480
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8s6k3esadrti&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=550000,CODECS="",RESOLUTION=640x360
+https://demiroren.daioncdn.net/teve2/teve2_360p.m3u8?&sid=8s6k3esadrti&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3

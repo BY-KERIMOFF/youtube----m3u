@@ -27,9 +27,13 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/kanald
 
 # Teve2
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/teve2.m3u
+# Teve2 - BUTUN KEYFIYYETLER
+https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/teve2_all.m3u8
 
 # Star TV
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/startv.m3u
+# Star TV - BUTUN KEYFIYYETLER
+https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/startv_all.m3u8
 
 # Eurostar TV
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/eurostar.m3u
