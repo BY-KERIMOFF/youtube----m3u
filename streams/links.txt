@@ -1,24 +1,24 @@
 # Show TV
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1790363896&st=Qt1zoHMNQbZauX_xCzBWYg&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1790375519&st=H8-qz8NsyE_2LdkbrDNfvA&tv=1
 
 # ShowTurk
-https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1790364170&st=qqIuH6pE0xm4kzCrl96TEA&tv=1
+https://ciner-live.ercdn.net/showturk/playlist.m3u8?e=1790375744&st=z4OAmMG-EK93tNXQwyqp4Q&tv=1
 
 # NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=wd1GmG09Wup4I7HKWzgCkA&e=1790371360
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=nLsFhtUJLtIbxIE0YUqfGg&e=1790383014
 
 # TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8s5mui11zox8&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8s640kzo689l&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 
 # Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 
 # Teve2
-https://demiroren.daioncdn.net/teve2/teve2.m3u8?ce=3&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ppid=cc6c5ac89008016510ccaf5bfb5aa068&dfp_paln=AQzzBGQEqbwgQeWSUXHGablOlQebs4dB9S1t-3-s-xYYIqQgpi_MZvvkjpmj-PMarTTeiAjNEcJ7gIXaEaYdybGOOh-y1VAxJLW2crq1d41NPLptvsgMwg0fMJXinBkwgTq02XTYgSA-WHsxuj0tL7pwuQcttpLvwru_KeMhWYKz-7K8b0aMA6UUYXOzXej_50ggbkCnxp0muaZIoqzvu261nSqgjjJlu2trBs7qcEegE32P13SH-_hAEVkPFeks2-vf8GnRq2Un2u_mVeIms7NFjvpTBP06ClmLAdkjs1NtnsCbwvgBYskOnNlBvSq3tFI5Mx1svFhI-6Lnt8GIqucfxKMp_1b8kzvWXTwL3dxporWPFQaoyNc_etl7OE5pxvdP6tIuaVmu2SZrLneIpCXYR7URnde2tFSnQsdWePt-eM_DVYHgxz7oUXJJV3tUJAZ5C_n0__gAmCxCgM5jYmDD3YXayJK6fGnQcKvnxcWQTIeQXzPh_UUHh_ILkvHNGzKwD-XVl4a9Xuu0tyEV3hz8OEg66zODKlFvKyyUJ_6sWlXM0HRLEYrPjv9xkTyYNJlZxea8VtShxefZB-M874z9mchGE6GcJkLyrZMQuvaLhaqcSwARYC_K7kkBTAFUhtNs3-6jyALBcGzyqhc6MornsYKiEcip9ZnQ6pUQHBbywx4ZjYd-cI6pk5Y9za1noz-DK6HU4SFURb3kjtIioUYMKPf_Fu_HdOC2IdQia0zxOY8G3O4YbAuk6S9eIHqBKmOgrSwODgpuO28Npc7SkDZiPac4WkQga7jL-bv2xDitJyLx4ntekgLPzYY6LhAe_9b-jg_g_Au22j_CzaOYP2c6QX57iOXwoWRO2_wkau_cGcdzHEVtsrpN_WExkuafSSxGkdwQwB7em2wNtxIKO7QlxddKxFzb-DOwEPb4U_aD-Tlybw6SFVgB0kQidf0slqFm0YXgCmFovflBmBomRtMjdRV6iKfF9pyRdgA16akV8gxZ1kahZ6FP36NijuMRyx6g4VomkfTXBIaF5vWkEZWgHoo55Uq0qD9ZqpUZOWMwWYeyTNW6edD58myQB4IUP1eSbShtcixd-WziGpj3oW3mauGh5ZdR_lW_RVMs4sq6wNXBPP3rhj03aRk-fCKLwD9eE5M2JD-nv5H62LTPxAjyTvQf_3Ab28v7kxa7z2uQ4rPcKfRBkRSsOO2M0PzRzeQJSJdsOnGJ_aIdqKu4G1gMM1bLb8g0vmPyprMLF7A9QtYg7VZm4yJ4IsnsAKm7TXeQd7B2jZHz2OxlbWfX7oW82CEbLbBRhHuRuPNh16-Bml9v-JGaMlqaK3XMSQx2XbLMnUkVGtHkYUxB2nk-W8s_hLu0yFeMX79xMP91n4d0vAk6SUjPUQYBlVs3vZ6dU_IcX-I_8aKRcXVKAjFAez9Yi2w99kz0-QHuFumpb_Q2lCJHe-meMZUhsuKa_nR88kvs93i4O7tj0t5Q4EgrVmToYy7uyBy6-3fFlhu2y3MfPg..
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8s64aufzuzmv&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
 
 # Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8s5n71vkvx2s&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8s64dfko2rn8&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 
 # Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=SgbQ_xKA7gNUL3CaIVLBgw&e=1790443883
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=-TxQ0bNLUyKjA2cV1UpWYg&e=1790455436
 
