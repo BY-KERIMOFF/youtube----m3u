@@ -1,4 +1,4 @@
 Kanal: Showmax
 URL: https://www.showmax.com.tr/
 Status: M3U8 tapilmadi
-Vaxt: 2026-10-06 21:31:48 UTC
+Vaxt: 2026-10-07 01:00:58 UTC
