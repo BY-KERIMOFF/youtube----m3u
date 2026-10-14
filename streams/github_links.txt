@@ -9,8 +9,6 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showtv
 
 # ShowTurk
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showturk.m3u
-# ShowTurk - BUTUN KEYFIYYETLER
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showturk_all.m3u8
 
 # NOW TV
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/nowtv.m3u
