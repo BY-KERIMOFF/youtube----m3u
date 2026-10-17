@@ -4,8 +4,6 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/all.m3
 # AYRI-AYRI KANALLAR
 # Show TV
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showtv.m3u
-# Show TV - BUTUN KEYFIYYETLER
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showtv_all.m3u8
 
 # ShowTurk
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/showturk.m3u
