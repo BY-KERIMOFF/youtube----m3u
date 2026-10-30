@@ -1,17 +1,17 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="showtv" tvg-name="Show TV" group-title="Turkiye",Show TV
-https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8vkwx7jrt61f&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
+https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8vlxy6xlqas7&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
 #EXTINF:-1 tvg-id="showturk" tvg-name="ShowTurk" group-title="Turkiye",ShowTurk
-https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8vkwzsbyj7lj&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
+https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8vly0lq77u1w&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
 #EXTINF:-1 tvg-id="nowtv" tvg-name="NOW TV" group-title="Turkiye",NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=ccaxuma1HLPZ4GTjWCEnrg&e=1793356702
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=8NE0yQw8CdMWJ4j9IBkrSg&e=1793381569
 #EXTINF:-1 tvg-id="tv8" tvg-name="TV8" group-title="Turkiye",TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8vkx7daqtfls&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8vly84rfe6dn&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXTINF:-1 tvg-id="kanald" tvg-name="Kanal D" group-title="Turkiye",Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 #EXTINF:-1 tvg-id="teve2" tvg-name="Teve2" group-title="Turkiye",Teve2
-https://demiroren.daioncdn.net/teve2/teve2.m3u8?ce=3&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ppid=6d628a15760437c8ebd76484d691fb2f&dfp_paln=AQzzBGQEBmBva7YQn0unErlAw6-voehNihEAE_NiIudJj6yK3w7YMFAQSn7x1XFtUe-LPuG1W2uw15mY4gDijddWv_S0aTVe__Fu_nMen8oOK5lQGVn1_tDwt_RkROKUXleFcLhe8t8jARZNQM7f359qGHNK-DeDmDpi8nk_TEQK_HoAfL8CSaA1CmPXXa03-lai0uY9hkqFoW7S5F7-2mkjDhIYldrYjLUN4FUnSNrQLFm_nKhFUfJeqD7qdYwJtX8uv4LJ1HOGqK02lw2QTW4ivRQvnOwaRxa8NBN9Px64Rl0d8MEJjBZ_rCHR6xvORKlyTIv5B7Isu4C4vg7lLPaVViBv3fmGSeBJcUepZk3jXSyIh35YEL6XWFTI4YjUF83TfWOvE44WjplAkfdh2yihZtxWZmDt2jvqqfDO16Q1PKJIEro9d8skr4wogxBmWWLMGO_ITIvVfFlRnmlgx0b47WP8xZHQ2Q3RU8_uvys8ocb2lSQUlhJxsXO_2XqU4SqZgG7a429PAlLAuPj_sMlxlLHpme-7QdBQuXRoteig1srevpjilsyGWP14JcLKf3UImUgnWuqax6sJMNUV9pIwmPp6Pllpxlq_ORD6FZIdixVfMtTfM5KBQxWluHvgGxgy_hcKIjAu9ku2HSsOnboA59TJTIjtFis-98hv1H5xYteyobAP0bUWOdQbO5fljvGPDj2tzqdxkexXSaAKjailltIVmkpDVFysXJIHIXSJIXlgTOBTdOgep5VYmmn8pFt_WPsGLydndnObuQ4-8P4UNIvEORJqsBC7qijVVZNHZ36GqXGOtEcglr9cHCA9BqfgMZEdoLyG_FyhAHCsiM3i8rbJZ2SOyaqI74E1t5fHDXw1U0P5xf7TNK1babYlkVYwU8g74riFpuo8nethOD7ip7EXsik84IwlV_Qixx97Uv3fbR6pgvuHM-J9sBYaHGS0jP7Ly7qekjkbeo4eAWtIgLZ1eiDLeS9YjUpKp0xb44YTcP5aQTnshQpoH1WqincZxddpcpUBOR7y4eO4HPwd5Q2XVhaWQWYhT9cFxO_6fgdGbBIUVuyQqA434TvFA5sTt1v-WAOR0RwMtqpiAThU9s-E0ABkR2Lp2DwrQ-ak0H9JK4CclFVHdRu52X0x2hsoP6nXGWrZI5Mtjh1-2XgW0jSMRH_7Hmfl
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8vlyi7txqk22&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
 #EXTINF:-1 tvg-id="startv" tvg-name="Star TV" group-title="Turkiye",Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8vkxjyprqcsy&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8vlykpni3tiv&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 #EXTINF:-1 tvg-id="eurostar" tvg-name="Eurostar TV" group-title="Turkiye",Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=t6AOa5psGrhjSTIBG9QAlg&e=1793429147
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=WM98mXsB-AwJ2HLF_apyFw&e=1793454046
