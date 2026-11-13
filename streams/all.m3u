@@ -1,19 +1,19 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="showtv" tvg-name="Show TV" group-title="Turkiye",Show TV
-https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8wz58pe08nxh&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
+https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8x0d19cohc42&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
 #EXTINF:-1 tvg-id="showturk" tvg-name="ShowTurk" group-title="Turkiye",ShowTurk
-https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8wz5b60x15sn&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
+https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8x0d3ltjve37&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
 #EXTINF:-1 tvg-id="nowtv" tvg-name="NOW TV" group-title="Turkiye",NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=7MmtZ0KprKHe7DXKK4ZzYA&e=1794572906
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=7WxFMb4F8x8DwWpOy2zj0g&e=1794602269
 #EXTINF:-1 tvg-id="tv8" tvg-name="TV8" group-title="Turkiye",TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8wz5io199x0i&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8x0db1ratjwv&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXTINF:-1 tvg-id="tv8int" tvg-name="TV8 International" group-title="Turkiye",TV8 International
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8wz5l1r0capq&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8x0ddf8nq7pz&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 #EXTINF:-1 tvg-id="kanald" tvg-name="Kanal D" group-title="Turkiye",Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 #EXTINF:-1 tvg-id="teve2" tvg-name="Teve2" group-title="Turkiye",Teve2
-https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8wz5t1p5hgmn&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+https://demiroren.daioncdn.net/teve2/teve2.m3u8?ce=3&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ppid=77d73a1c3ebd1f5bdbe07ebf5760d00f&dfp_paln=AQzzBGQE6QrARiD0G8jIzVtcVLG3Hl16idWvJQ9U7qqox5HRo1ixzimKHODT8bMcFSzN47a6T9mtnFgKXZQKIZut-7vzW64c6SbFdjzGdyd2dJkY_04u3WZ1k1rkUl9x07WOXna3_5VA7cmRnXCbbA2kb5C9SBrE_htrbkjdcmCUObdYpzwxLDomzgugnunsZ0RU7P6pJ8H0R2i87AHSwhcEpMMDDtPhWCk19D4KmC1kqYAxD9oCXUg8vmigPTD73c20Xy8Aql8icMfl1aSWbmPVwDOMXiW70r1jAYpWomRYLz2vqqonjmeEnyKyFXq27Qk0NXUw5KmhcBrdWGv4b563qRBivt86UIR15KplR-QhZhAHLfP3-aKs1oS4b1nckqxh17o1R38ZUX3MQABVJntPAGTwGuwlVe85_GOoO04zAXr-vtaJOltuu7os7-5IAlV-jM0wyYAcyAQdbQRigtubZ57z3Ayos09iLxOTHicF79YagOLzru_3jhml-lstrejLYm5nW7sJVksVdE256DNHfyp5WK4ZXuYqVw7fEjjcM9ScQcinJM8xGb4dLGEzAVkgQT02wsn4wfcj-vAoGsVbAkK1-6Q5PiVyGRu8tYkzdoiVriPZPXxgxpvibyONjoJiCGJPuCDYLYXivJrt2nsNirgasvP2-kkvNUzLIvnFUpL9iCSqasiePvZS6O3JTlaneRazAyeKMtJwsl9JEVL_MvZIYa9uJ33fdZp_-rFwdV2rt_BZIXOlH6fqIf-WSdS7WGmIcWavHwArS7-fuvcfokbt_5kidi5WAwuIGLS37nJhDk0olXXxkuDnae4fdITJhA1Jm6Ce3XBmWBc3fBfjc20EMBuJFL-gXj978nhPyKFJvI15deTXuP8xLO-0ABV0jmsKLLidLTSG0XX95SUR17xdZrgB8tUiaiQYXtaokw2XlK0W2YjhWmPyeipIxPKAnm2rgkrtkgy3XzT9d6AL3Pcly311YO3Vr27IK_7J348i8g4ypnPjCmMzhUv1F6Txes_jYtplgt5wliiJYKtSUnvJGDJgLl5Dn1wgMMibemwwa5QeNy9y6cRDxt7m5_o1opy11-mraEzFtRxX8wV3b9e9FFYXq-62Jqg8GHlYJuRwjpuw-3t3WvUA9bJQ4n11hwPYXpokkkDozhes4q_IWYttY5M_IMei_IDWgcVpVQJxP4SvtFmgsbl6R94bK-MLcZKpEJbUPPea4ezNA6QQFYqkEknkueEAwH2ZojuKPOMYPntrkFkmyGr0odzZLCH1pvdnpl49kNYnuhujZ1QCCCCT24mfIez6TELU0gYMAq5Rd0WF_Z6kwahdGwIbwG_1aG9mEMnDTSR5QcwGAOiasvRkZ1kFcZd8IaSDHU9Fw9DxCDtDao94N8trnHnBPL70p51olKCgo-KyUsJNSfEftW8vPGP8dfryLfqvNk4o9-kqPVRUO2hSbjQ9ida2Nqw7zYyQ3wVMCLoJPqRduttPUufLPHHMVJRxlNST8ZzLAA..
 #EXTINF:-1 tvg-id="startv" tvg-name="Star TV" group-title="Turkiye",Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8wz5vilwusme&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8x0dno06low0&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 #EXTINF:-1 tvg-id="eurostar" tvg-name="Eurostar TV" group-title="Turkiye",Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=bwlMVBO71-Wyc1GQqOFwrg&e=1794645431
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=HSH_dvdgYRjU7I9ridPz3Q&e=1794674879
