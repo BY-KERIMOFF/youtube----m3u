@@ -21,8 +21,6 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/tv8int
 
 # Kanal D
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/kanald.m3u
-# Kanal D - BUTUN KEYFIYYETLER
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/kanald_all.m3u8
 
 # Teve2
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/teve2.m3u
