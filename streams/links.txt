@@ -1,24 +1,24 @@
 # Show TV
-https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8xpymh9godsu&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
+https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8xqpkgugn7au&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
 
 # ShowTurk
-https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8xpyoz6n361w&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
+https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8xqpmzazrnxg&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
 
 # NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=KCX0KJQ64q_X2Vi_bMtrlw&e=1795222335
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=JuKy3SFbbY9lSigqttEPuA&e=1795240245
 
 # TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8xpywkl39s3p&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8xqpuoro98xz&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 
 # Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 
 # Teve2
-https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8xpz6o9pyxsl&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+https://demiroren.daioncdn.net/teve2/teve2.m3u8?ce=3&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ppid=b840e9617ca7ed04d795ecd48040651a&dfp_paln=AQzzBGQEursJsN9-tq7Kj-a_OjX61VGDZML3mg8Ox4uPWMCtCeHRXhienRg0DL2ZNtYGuNZKpY_kaw8JbInCTkiMTxV6VV5pgKttC4hB5w8ra0YfQKhgEup1Tc3jSBeQxUuN11zCcWx4FcrLcELWMM6qr4hN4mWRUrxiDcictdWhBl8yC5sjP1j6SpYpvMa3snYXbxEkcc97j1kHSnIyx4JPcM0UB_eXe9aCLdY7TAiWB-bIHYJLqgG0Pqe42OnMGv9f8Xl2yB2xZ8A52DdSEsP_u1FuFe2TnNg8EyOtk1LE7Ak0ys2Ifn_vIBsEWrhg65-NlDRPjjPbs8BcRK-oRgWW9FuiVUfPVCKpy8guW5tycyNm7-v05UZXV1yO8kQaQKhVd5q7Oo0fVSIE6Elal0ylehiW3m8EsQrbmjbNov3fZDPeE67mk6vcaA8gsiMfFCOGSehbMhPtwNsByxXmdVEbToMSNjMLE-H8i2_sKto2eEkpO3vh_drZ1NhjDP8ozS2mGlxR5q7n5FUoHScWAu1wxirzZ3krVoPizoTnGYEqEpEh5S8UR_ZtXK5DWcQdeIDJ4wBhGJSPtbvgEtyc0gvkD5CvUtSuTkmHIIYgNx-DGwvWdrWA091DYx7ZLgUstlitYxn6kOu1ODWzxyNvDnXHXIKOLrsXPWkVcU2FBcff1nyN2m2e1J77MvgwVD7OYzw2ucbp1xiE8Ge5mboKGnxAOV6CjyuYjF0yKucEhPRF8A8-xM8tNM6zlgIzMoMvIwkjpetlMprtVFLA9r9yd7AdHqLoikmm3XdIKW3T6_DNq9wU1o8ZO_y_RoPLrfxFqBkY2H_2k-ueVT0mHis86Tlvxz5mWdz4yc0vUsByWcFXYl3AKVkRxoop-Als2R_TDm1Ycg8sd5G2PmWlk2kZj9u79yi0an019nJuj-pLSO4b3IhDI7-K1-221gR8BBZgEpSxQqLPIkMAJzF51iD5Tck4WqVRSNFfvbYayKx_WAxmK40J1uHoXDKSCzoUyEDc9HTSKv2Sy55xy99SPGhkUYOY_gjkhydryqqhN_MogCmwHikIgfXrsuXNmle5HMEqVyHXk1HqiHnaZzd1Awq4_A_jNw6DjE_63tma9mLNFVvl6PK820BSh3XYlAAX5lrObdkZvbum04Y1MEPxsk71FAnXolc_hU2IjiX-Zb0I0l84EOc4fTDUc_AP0SnPBbQRSHbGTo69CiW8Gf8dMj-fL0kYFaDUr8apSA7uH3cp4strwCgglcwJimIYwr1XPogUn721Wi9_OKu863ReJC0U7P3pxgCZfG1DD7iV1DLdvP6aNphE0wGJmLsqOBDpcWaDQJy-Ij_3PXq5URgLNvuskBHBiAXNnbynG6sq2aj-aDureUVzPguLIIYNWL3bFyP7X3wAZwspv-2ZH1rSE2p5GS3sRV1h9Z0BxGbparmQrkwPaiBfImFE2byP8MZKmweMzClP5ViCZXX1q-a0Wo8ePfyLsmWURss7YQT9
 
 # Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8xpz98o97a8w&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8xqq7714dzkp&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
 
 # Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=eH7KwkroF6TxC6YFt5oxUA&e=1795294751
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=_gLtJnPLSowREb35N-ktig&e=1795312875
 
