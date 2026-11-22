@@ -15,8 +15,6 @@ https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/nowtv_
 
 # TV8
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/tv8.m3u
-# TV8 - BUTUN KEYFIYYETLER
-https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/tv8_all.m3u8
 
 # Kanal D
 https://raw.githubusercontent.com/BY-KERIMOFF/youtube----m3u/main/streams/kanald.m3u
