@@ -1,3 +1,3 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="tv8" tvg-name="TV8" group-title="Turkiye",TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8xtovarbkd2w&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://gcdn.2mdn.net/api/manifest/hls_variant/source/web_video_ads/id/0982854afa891de8/itag/0/playlist_type/LIVE/xpc/EgVovf3BOg%3D%3D/ctier/L/acao/yes/ip/0.0.0.0/ipbits/0/expire/1826848200/sparams/ip,ipbits,expire,source,id,itag,playlist_type,xpc,ctier,acao/signature/AD27A3B1DFD95C24A5D1B93612A616C46AE3F770.2E1E0F6F00AF4E95FAF42B6CE79A497477861746/key/ck2/file/index.m3u8
