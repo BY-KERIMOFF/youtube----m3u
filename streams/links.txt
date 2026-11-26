@@ -1,24 +1,24 @@
 # Show TV
-https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8ya3s6e5t0qm&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
+https://ciner.daioncdn.net/showtv/showtv_1080p.m3u8?ex=1664766175&st=RBzhSuGauna0OGld-DJUVA&tv=1&sid=8ybibopmaxr2&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558&ce=3
 
 # ShowTurk
-https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8ya3up1cnqmn&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
+https://ciner.daioncdn.net/showturk/showturk_1080p.m3u8?ex=0&sid=8ybie5tgent9&app=3a516c79-a14a-4585-9204-9080fb8ecb61&ce=2
 
 # NOW TV
-https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=V1o4Vgvyvh21wmtls7yWBg&e=1795709984
+https://nowtv-live-ad.ercdn.net/nowtv/playlist.m3u8?st=HsD5l36x02WB0JD4et6pag&e=1795744017
 
 # TV8
-https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8ya42by33ymh&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
+https://tv8.daioncdn.net/tv8/tv8_1080p.m3u8?&sid=8ybilmgm5lue&app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3
 
 # Kanal D
 https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/playlist.m3u8
 
 # Teve2
-https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8ya4cpid0bmp&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
+https://demiroren.daioncdn.net/teve2/teve2_480p.m3u8?&sid=8ybivthqznh3&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3
 
 # Star TV
-https://dogus.daioncdn.net/startv/startv_720p.m3u8?&sid=8ya4f8z9svzz&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ce=3
+https://dogus.daioncdn.net/startv/startv.m3u8?ce=3&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9&ppid=ca1c0229f31a88217f6a1c6d2722c491&dfp_paln=AQzzBGQE-28J0HUTODwyR2ewMNEA5W3cs7eJ9dY5LkoYsWqJFoqTQFxULEUx2_ZpxEijEzg7RtjKIbUQ3CWgGVpBDwcwMp-Xw4tC7KfycPIWcoHz4jW0DPnAKRbIl2Ogib7HE8YQW9n2LDMlGXguTK9l4mqY1gB79LTmzaU3jI4ASaFk3fTVRDq8ZDObi0zdtO4t1McSZW12P1GL6BC6wEZj3DWJT14CIJB_O6dsFWcTc1XKKeQmpkcco_0TXakr1i_4pRSqz5AJfgZf863851jxMN-IPMOaxmvXO-QRJLo1t9Wpd4aLj7Axarnoj1GilM3JvZgCWrTgYkZnE1ZGN3zt0xveL26RJMn4mlCmhUZCs4qhFPdt87oKbL0wuHuJkgjrjR-SnvNcbf5RIFf-u6AA3OJIsOHJHCjwpLNv8RcyqavyIzT3yeAmGETlnCDMbQbdh7pQbpwHMl9yVT_CinvdHo0xLWOpQoxE7lDgpHGzwX80dS1JDDSbENKNKZYF4JmcNqOL_SwJNeA3ajFbdDdr1mbMsrp2UrAC0bdUbMH7NK5R-I_hdmJv9yR9OSbuDBZj_WLfWna8m0rVPtnsVEQrxGtcYcXoE5bJveAHUOpgDnWBPQsrsIxgnuetVGAWOHNZl8rGJznDWkQGlJcLF2qLxFQ0Y2Kt79yfC_THddZPKt2hKVYTG_DAcDfGRY3PjlPy_3cJOLakuYKd_86N0hBCyXJTd9GHgbkugRBVmmuUQL5YwgDwKspvojxlf1xVEkkylSN1SpfvgJFzlnxhAW9RYLP7kriRbrJkpu_nfIPAvxlt41ucG35YUN3MykUqiHq6D-0D5Tndz1AqdywniPSZ3btwKVvb7tgkf1z23WfEuFGLHRSvJs4JuUQuNIm_ZCrHVaskZIGfhAv-Qkkq8-YDFElonB6QcEMaXFsgB-fWB3SFcJ0OlQdxc8-sDluVifQ4iw4MrMwz12Xb1MwiXFEqwFigPJWcW4uCpQhqOvF28W36-9mNNcLezufYH-lxWBtJUQfafDc6Lt1NayHiF5YeHwftPRqZEMN6Va9NvrbpkFqAE3Q1GTLP3I3U84q9IsRO17sMHloonQYF5D3mXrSCn3hHrvaWiO4cwGgTGEU0a7nN1zJQU-YbwfF2_JMriMSaUfnF0_qHKAWfXzndcV-IXDZ9lvrRzw-r2Bb8zh-kkjqlhggKCx7U7QTU--NZGaf1GWd8tFbyO-78ZpOOVOSqHwDT6kdbDTeex-Qfb1n146kOp9VKAJmtRio4ypFfRPL6d-lWrc6lpMf7bAoFSsPeJ3pCLjVlL5VgcHCzrXfG7UbqGD1FQKV6P3xpnwqz4hZ2-_OvGwDmWNQYWgP8c97AMTauJF00hrsXbAX1dPkg_9mBHTcBW-oii1alqkouIeDPeH5MTeI4VS63WprYXvJH-LCowtzXsBWHgVVYjcxDx7_MpsrKahx5xVuYVsjvE6iShZFkz1-0BCiYL6rvuFeAW2qLli5xvsi_EGAwBIHx
 
 # Eurostar TV
-https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=lpBI3fqeLUD78bgj6Bspzg&e=1795782504
+https://dogusdyg-eurostar.lg.mncdn.com/dogusdyg_eurostar/live_1080p3000000kbps/index.m3u8?st=ItTW5crUJN_xSvhlaqSCNw&e=1795816488
 
